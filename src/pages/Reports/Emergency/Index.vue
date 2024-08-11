@@ -198,7 +198,7 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
                                     <q-item
                                         clickable
                                         :to="{
-                                            name: 'call-report-edit-page',
+                                            name: 'emergency-report-edit-page',
                                             params: {
                                                 id: '123'
                                             }

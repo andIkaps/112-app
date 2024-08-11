@@ -325,7 +325,7 @@ onMounted(() => {
 <template>
     <base-title title="Call Reports" :crumbs="breadcrumbs" />
 
-    <base-card title="Create Call Reports" subtitle="Input Year and Month">
+    <base-card title="Update Call Reports" subtitle="Input Year and Month">
         <template #content>
             <q-form @submit="onSubmitPeriod" class="tw-space-y-3">
                 <base-text

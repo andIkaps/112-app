@@ -53,6 +53,16 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/MasterData/Employee/Index.vue'),
                 name: 'employee-page'
             },
+            {
+                path: '/master-data/employees/create',
+                component: () => import('pages/MasterData/Employee/Create.vue'),
+                name: 'employee-create-page'
+            },
+            {
+                path: '/master-data/employees/:id/edit',
+                component: () => import('pages/MasterData/Employee/Detail.vue'),
+                name: 'employee-edit-page'
+            },
             // # Religions
             {
                 path: '/master-data/religions',

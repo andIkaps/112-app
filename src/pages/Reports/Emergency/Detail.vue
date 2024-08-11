@@ -2,25 +2,8 @@
 import { onMounted, reactive, ref } from 'vue'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import moment from 'moment'
+import { Notify } from 'quasar'
 
-// Data
-const breadcrumbs = ref<IBreadcrumbs[]>([
-    {
-        title: 'Dashboard',
-        href: 'dashboard-page',
-        icon: 'Category2'
-    },
-    {
-        title: 'Call Reports',
-        href: 'call-report-page',
-        icon: 'Headphones'
-    },
-    {
-        title: 'Edit',
-        href: '',
-        icon: ''
-    }
-])
 type CallReports = {
     day: string
     disconnect_calls: number
@@ -38,283 +21,67 @@ type FormSchema = {
     year: string
     day: string
     calls: CallReports[]
+    kecamatan: any
 }
+
+// Data
+const breadcrumbs = ref<IBreadcrumbs[]>([
+    {
+        title: 'Dashboard',
+        href: 'dashboard-page',
+        icon: 'Category2'
+    },
+    {
+        title: 'Emergency Reports',
+        href: 'emergency-report-page',
+        icon: 'Brodcast'
+    },
+    {
+        title: 'Edit',
+        href: '',
+        icon: ''
+    }
+])
 const form = reactive<FormSchema>({
     month_period: { label: 'January', value: '01' },
     year: '2024',
     day: '31',
-    calls: [
-        {
-            day: '01',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '02',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '03',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '04',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '05',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '06',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '07',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '08',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '09',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '10',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '11',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '12',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '13',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '14',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '15',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '16',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '17',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '18',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '19',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '20',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '21',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '22',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '23',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '24',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '25',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '26',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '27',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '28',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '29',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '30',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '31',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        }
-    ]
+    calls: [],
+    kecamatan: ['batu_ceper', 'benda']
 })
 const isSubmitted = ref<boolean>(true)
+const optDistrict = ref([
+    { label: 'Batu Ceper', value: 'batu_ceper' },
+    { label: 'Benda', value: 'benda' },
+    { label: 'Cibodas', value: 'cibodas' },
+    { label: 'Ciledug', value: 'ciledug' },
+    { label: 'Cipondoh', value: 'cipondoh' },
+    { label: 'Jatiuwung', value: 'jatiuwung' },
+    { label: 'Karang Tengah', value: 'karang_tengah' },
+    { label: 'Karawaci', value: 'karawaci' },
+    { label: 'Larangan', value: 'larangan' },
+    { label: 'Neglasari', value: 'neglasari' },
+    { label: 'Priuk', value: 'priuk' },
+    { label: 'Pinang', value: 'pinang' },
+    { label: 'Tangerang', value: 'tangerang' }
+])
 
 const onSubmitPeriod = () => {
-    form.day = moment(new Date(`${form.year}-${form.month_period.value}-01`))
-        .endOf('month')
-        .format('D')
+    if (form.kecamatan.length) {
+        form.day = moment(
+            new Date(`${form.year}-${form.month_period.value}-01`)
+        )
+            .endOf('month')
+            .format('D')
 
-    for (let index = 1; index <= parseInt(form.day); index++) {
-        const template: CallReports = {
-            day: String(index).padStart(2, '0'),
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        }
-
-        form.calls.push(template)
+        isSubmitted.value = true
+    } else {
+        Notify.create({
+            message: 'Kecamatan is required field!',
+            type: 'info',
+            timeout: 3000
+        })
     }
-
-    isSubmitted.value = true
 }
 
 onMounted(() => {
@@ -323,9 +90,12 @@ onMounted(() => {
 </script>
 
 <template>
-    <base-title title="Call Reports" :crumbs="breadcrumbs" />
+    <base-title title="Emergency Reports" :crumbs="breadcrumbs" />
 
-    <base-card title="Create Call Reports" subtitle="Input Year and Month">
+    <base-card
+        title="Update Emergency Reports"
+        subtitle="Input Year, Month and Kecamatan"
+    >
         <template #content>
             <q-form @submit="onSubmitPeriod" class="tw-space-y-3">
                 <base-text
@@ -334,7 +104,6 @@ onMounted(() => {
                     v-model="form.year"
                     dense
                     :required="true"
-                    :disabled="true"
                 />
 
                 <base-month
@@ -343,10 +112,22 @@ onMounted(() => {
                     :placeholder="form.month_period?.label"
                     dense
                     :required="true"
-                    :disabled="true"
                 />
 
-                <div class="tw-justify-center tw-hidden">
+                <base-select
+                    label="Kecamatan"
+                    v-model="form.kecamatan"
+                    :options="optDistrict"
+                    search
+                    dense
+                    :emit-value="false"
+                    :map-options="false"
+                    multiple
+                    use-chips
+                    :required="true"
+                />
+
+                <div class="tw-flex tw-justify-center">
                     <q-btn
                         unelevated
                         no-caps
@@ -361,81 +142,69 @@ onMounted(() => {
     </base-card>
 
     <template v-if="isSubmitted">
-        <base-card title="Input Reports">
+        <base-card
+            v-for="item in form.kecamatan"
+            :key="item"
+            :title="`Kecamatan : ${
+                optDistrict.find((x) => x.value == item)?.label
+            }`"
+            subtitle="Input Reports"
+        >
+            {{ item }}
             <template #content>
                 <q-form>
-                    <section class="tw-space-y-5">
-                        <div
-                            class="tw-grid tw-grid-cols-6 tw-gap-5 tw-text-center"
-                        >
-                            <h1 class="tw-text-left">Day</h1>
-                            <h1>Disconnect Calls</h1>
-                            <h1>Prank Calls</h1>
-                            <h1>Education Calls</h1>
-                            <h1>Emergency Calls</h1>
-                            <h1>Abandoned</h1>
-                        </div>
-
-                        <div
-                            v-for="item in form.calls"
-                            :key="item.day"
-                            class="tw-grid tw-grid-cols-6 tw-gap-5 tw-text-center tw-place-items-center"
-                        >
-                            <div class="tw-w-full -tw-mt-1">
-                                <h1 class="tw-text-left tw-text-gray-600">
-                                    {{ item.day }} {{ form.month_period.label }}
-                                </h1>
-                            </div>
-                            <base-text
-                                align="top"
-                                v-model="item.disconnect_calls"
-                                dense
-                            />
-                            <base-text
-                                align="top"
-                                v-model="item.prank_calls"
-                                dense
-                            />
-                            <base-text
-                                align="top"
-                                v-model="item.education_calls"
-                                dense
-                            />
-                            <base-text
-                                align="top"
-                                v-model="item.emergency_calls"
-                                dense
-                            />
-                            <base-text
-                                align="top"
-                                v-model="item.abandoned"
-                                dense
-                            />
-                        </div>
+                    <section class="tw-grid tw-grid-cols-4 tw-gap-5">
+                        <base-text align="top" label="Kecelakaan" dense />
+                        <base-text align="top" label="Kebakaran" dense />
+                        <base-text
+                            align="top"
+                            label="Ambulan Gratis & Medis (AGD)"
+                            dense
+                        />
+                        <base-text align="top" label="PLN" dense />
+                        <base-text align="top" label="Mobil jenazah" dense />
+                        <base-text
+                            align="top"
+                            label="Penanganan Pada Hewan"
+                            dense
+                        />
+                        <base-text
+                            align="top"
+                            label="Keamanan dan Ketertiban"
+                            dense
+                        />
+                        <base-text align="top" label="Kriminal" dense />
+                        <base-text align="top" label="Bencana Alam" dense />
+                        <base-text align="top" label="KDRT" dense />
+                        <base-text
+                            align="top"
+                            label="Gawat Darurat Lain"
+                            dense
+                        />
                     </section>
-
-                    <div class="tw-flex tw-justify-start tw-mt-5 tw-gap-2">
-                        <q-btn
-                            unelevated
-                            no-caps
-                            label="Update"
-                            type="submit"
-                            color="secondary"
-                            :disable="!form.month_period.label"
-                        />
-
-                        <q-btn
-                            flat
-                            unelevated
-                            no-caps
-                            label="Cancel"
-                            color="secondary"
-                            :disable="!form.month_period.label"
-                            @click="$router.back()"
-                        />
-                    </div>
                 </q-form>
             </template>
         </base-card>
+
+        <div class="tw-flex tw-justify-center tw-mt-5 tw-gap-2">
+            <q-btn
+                unelevated
+                no-caps
+                label="Submit"
+                type="submit"
+                color="secondary"
+                :disable="!form.month_period.label"
+            />
+
+            <q-btn
+                flat
+                unelevated
+                no-caps
+                label="Cancel"
+                color="secondary"
+                :disable="!form.month_period.label"
+                @click="$router.back()"
+            />
+        </div>
     </template>
 </template>

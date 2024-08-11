@@ -158,6 +158,12 @@ const menus: NavigationProps[] = [
                 Icon: 'Book1',
                 Url: '/master-data/status',
                 Children: []
+            },
+            {
+                Name: 'District',
+                Icon: 'Buildings',
+                Url: '/master-data/status',
+                Children: []
             }
         ]
     },
