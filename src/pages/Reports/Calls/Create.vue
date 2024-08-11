@@ -51,6 +51,8 @@ const form = reactive<FormSchema>({
 const isSubmitted = ref<boolean>(false)
 
 const onSubmitPeriod = () => {
+    form.calls = []
+
     form.day = moment(new Date(`${form.year}-${form.month_period.value}-01`))
         .endOf('month')
         .format('D')
@@ -69,6 +71,11 @@ const onSubmitPeriod = () => {
     }
 
     isSubmitted.value = true
+}
+
+const onUpdateMonth = () => {
+    isSubmitted.value = false
+    form.calls = []
 }
 
 onMounted(() => {
@@ -93,6 +100,7 @@ onMounted(() => {
                 <base-month
                     label="Month Period"
                     v-model="form.month_period"
+                    @update:model-value="(val: any) => onUpdateMonth()"
                     :placeholder="form.month_period?.label"
                     dense
                     :required="true"
