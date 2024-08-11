@@ -162,7 +162,7 @@ const menus: NavigationProps[] = [
             {
                 Name: 'District',
                 Icon: 'Buildings',
-                Url: '/master-data/status',
+                Url: '/master-data/districts',
                 Children: []
             }
         ]

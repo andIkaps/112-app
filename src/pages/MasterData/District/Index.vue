@@ -22,7 +22,7 @@ const tableColumns: QTableColumn[] = [
 ]
 const tableRows = ref([
     {
-        name: 'Islam'
+        name: 'Kecamatan Benda'
     }
 ])
 const breadcrumbs = ref<IBreadcrumbs[]>([
@@ -32,18 +32,18 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
         icon: 'Category2'
     },
     {
-        title: 'Religion',
+        title: 'District',
         href: '',
-        icon: 'Arrow'
+        icon: 'Buildings'
     }
 ])
 const dialog = ref<boolean>(false)
 </script>
 
 <template>
-    <base-title title="Religions" :crumbs="breadcrumbs" />
+    <base-title title="Districts" :crumbs="breadcrumbs" />
 
-    <base-card title="List of Religions">
+    <base-card title="List of Districts">
         <template #action>
             <div class="tw-space-x-4">
                 <q-btn
@@ -155,7 +155,7 @@ const dialog = ref<boolean>(false)
             <q-form>
                 <q-card-section>
                     <h1 class="tw-font-semibold tw-text-lg tw-mb-5">
-                        Create Religion
+                        Create District
                     </h1>
 
                     <base-text label="Name" align="top" />

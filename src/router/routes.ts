@@ -75,6 +75,12 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/MasterData/Status/Index.vue'),
                 name: 'status-page'
             },
+            // # District
+            {
+                path: '/master-data/districts',
+                component: () => import('pages/MasterData/District/Index.vue'),
+                name: 'district-page'
+            },
 
             // Settings
             // # Menus
