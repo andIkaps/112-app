@@ -29,10 +29,21 @@ const routes: RouteRecordRaw[] = [
                 name: 'call-report-edit-page'
             },
 
+            // Emergency Reports
             {
                 path: '/emergency-reports',
                 component: () => import('pages/Reports/Emergency/Index.vue'),
                 name: 'emergency-report-page'
+            },
+            {
+                path: '/emergency-reports/create',
+                component: () => import('pages/Reports/Emergency/Create.vue'),
+                name: 'emergency-report-create-page'
+            },
+            {
+                path: '/emergency-reports/:id/edit',
+                component: () => import('pages/Reports/Emergency/Detail.vue'),
+                name: 'emergency-report-edit-page'
             },
 
             // Master Data
@@ -73,6 +84,12 @@ const routes: RouteRecordRaw[] = [
                 name: 'user-page'
             }
         ]
+    },
+
+    {
+        path: '/auth/login',
+        component: () => import('pages/Auth/Login.vue'),
+        name: 'login-page'
     },
 
     // Always leave this as last one,

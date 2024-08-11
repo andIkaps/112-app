@@ -11,6 +11,7 @@
         v-model:selected="dataSelected"
         :filter="dataSearch"
         @update:model-value="(value) => $emit('update:dataSelected', value)"
+        :visible-columns="visibleColumn"
     >
         <!-- Header Slot -->
         <template v-slot:header="scope">
@@ -112,7 +113,8 @@ export default defineComponent({
         },
         selection: {
             type: String
-        }
+        },
+        visibleColumn: Array
     },
     emits: ['call']
 })
