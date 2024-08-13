@@ -94,7 +94,12 @@ onMounted(() => {})
                     :required="true"
                 />
 
-                <base-date label="Date of Birth" dense :required="true" />
+                <base-date
+                    label="Date of Birth"
+                    v-model="form.dob"
+                    dense
+                    :required="true"
+                />
 
                 <base-select
                     label="Status"

@@ -63,6 +63,19 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/MasterData/Employee/Detail.vue'),
                 name: 'employee-edit-page'
             },
+            {
+                path: '/master-data/employees/kpi',
+                component: () =>
+                    import('pages/MasterData/Employee/KPI/Index.vue'),
+                name: 'employee-kpi-page'
+            },
+            {
+                path: '/master-data/employees/kpi/:id/detail',
+                component: () =>
+                    import('pages/MasterData/Employee/KPI/Detail.vue'),
+                name: 'employee-kpi-detail-page'
+            },
+
             // # Religions
             {
                 path: '/master-data/religions',

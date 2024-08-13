@@ -1,3 +1,113 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import Navigation, { NavigationProps } from 'components/common/Navigation.vue'
+import { useMeta } from 'quasar'
+
+defineOptions({
+    name: 'MainLayout'
+})
+
+useMeta({
+    title: 'Laporan 112'
+})
+
+const menus: NavigationProps[] = [
+    {
+        Name: 'Dashboard',
+        Icon: 'Category',
+        Url: '/dashboard',
+        Children: []
+    },
+    {
+        Name: 'Call Reports',
+        Icon: 'Headphones',
+        Url: '/call-reports',
+        Children: []
+    },
+    {
+        Name: 'Emergency Reports',
+        Icon: 'Brodcast',
+        Url: '/emergency-reports',
+        Children: []
+    },
+    {
+        Name: 'Master Data',
+        Icon: 'Layer',
+        Url: '#',
+        Children: [
+            {
+                Name: 'Employees',
+                Icon: 'UserOctagon',
+                Url: '#',
+                Children: [
+                    {
+                        Name: 'List',
+                        Icon: 'UserTag',
+                        Url: '/master-data/employees',
+                        Children: []
+                    },
+                    {
+                        Name: 'KPI',
+                        Icon: 'Activity',
+                        Url: '/master-data/employees/kpi',
+                        Children: []
+                    }
+                ]
+            },
+            {
+                Name: 'Religions',
+                Icon: 'Arrow',
+                Url: '/master-data/religions',
+                Children: []
+            },
+            {
+                Name: 'Status',
+                Icon: 'Book1',
+                Url: '/master-data/status',
+                Children: []
+            },
+            {
+                Name: 'District',
+                Icon: 'Buildings',
+                Url: '/master-data/districts',
+                Children: []
+            }
+        ]
+    },
+    {
+        Name: 'Settings',
+        Icon: 'Setting2',
+        Url: '#',
+        Children: [
+            {
+                Name: 'Menu',
+                Icon: 'Category2',
+                Url: '/settings/menus',
+                Children: []
+            },
+            {
+                Name: 'Role',
+                Icon: 'Lock1',
+                Url: '/settings/roles',
+                Children: []
+            },
+            {
+                Name: 'Users',
+                Icon: 'People',
+                Url: '/settings/users',
+                Children: []
+            }
+        ]
+    }
+]
+
+const leftDrawerOpen = ref(false)
+
+function toggleLeftDrawer() {
+    leftDrawerOpen.value = !leftDrawerOpen.value
+}
+</script>
+
 <template>
     <q-layout view="lHh lpR fFf">
         <q-header reveal class="tw-py-1.5 tw-text-gray-800 tw-bg-[#F4F5F6]">
@@ -108,95 +218,3 @@
         </q-page-container>
     </q-layout>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import Navigation, { NavigationProps } from 'components/common/Navigation.vue'
-
-defineOptions({
-    name: 'MainLayout'
-})
-
-const menus: NavigationProps[] = [
-    {
-        Name: 'Dashboard',
-        Icon: 'Category',
-        Url: '/dashboard',
-        Children: []
-    },
-    {
-        Name: 'Call Reports',
-        Icon: 'Headphones',
-        Url: '/call-reports',
-        Children: []
-    },
-    {
-        Name: 'Emergency Reports',
-        Icon: 'Brodcast',
-        Url: '/emergency-reports',
-        Children: []
-    },
-    {
-        Name: 'Master Data',
-        Icon: 'Layer',
-        Url: '#',
-        Children: [
-            {
-                Name: 'Employees',
-                Icon: 'UserOctagon',
-                Url: '/master-data/employees',
-                Children: []
-            },
-            {
-                Name: 'Religions',
-                Icon: 'Arrow',
-                Url: '/master-data/religions',
-                Children: []
-            },
-            {
-                Name: 'Status',
-                Icon: 'Book1',
-                Url: '/master-data/status',
-                Children: []
-            },
-            {
-                Name: 'District',
-                Icon: 'Buildings',
-                Url: '/master-data/districts',
-                Children: []
-            }
-        ]
-    },
-    {
-        Name: 'Settings',
-        Icon: 'Setting2',
-        Url: '#',
-        Children: [
-            {
-                Name: 'Menu',
-                Icon: 'Category2',
-                Url: '/settings/menus',
-                Children: []
-            },
-            {
-                Name: 'Role',
-                Icon: 'Lock1',
-                Url: '/settings/roles',
-                Children: []
-            },
-            {
-                Name: 'Users',
-                Icon: 'People',
-                Url: '/settings/users',
-                Children: []
-            }
-        ]
-    }
-]
-
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer() {
-    leftDrawerOpen.value = !leftDrawerOpen.value
-}
-</script>
