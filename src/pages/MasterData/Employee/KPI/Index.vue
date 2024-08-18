@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import moment from 'moment'
 import { QTableColumn } from 'quasar'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import { ref } from 'vue'
@@ -90,12 +89,55 @@ const tableRows = ref([
         grade: 'A'
     }
 ])
+const searchKeyword = ref<string>('')
 </script>
 
 <template>
     <base-title title="Employees KPI" :crumbs="breadcrumbs" />
 
     <base-card title="Lists KPI by Period">
+        <template #action>
+            <div class="tw-space-x-4">
+                <q-btn
+                    outline
+                    no-caps
+                    unelevated
+                    color="info"
+                    :to="{
+                        name: 'employee-create-kpi-page'
+                    }"
+                >
+                    <base-icon
+                        icon-name="AddSquare"
+                        size="16"
+                        class="tw-mr-3"
+                    />
+                    Create New
+                </q-btn>
+
+                <q-btn outline no-caps unelevated color="negative">
+                    <base-icon
+                        icon-name="DocumentDownload"
+                        size="16"
+                        class="tw-mr-3"
+                    />
+                    Export Data
+                </q-btn>
+            </div>
+
+            <q-input
+                filled
+                v-model="searchKeyword"
+                type="text"
+                label="Search"
+                dense
+            >
+                <template #prepend>
+                    <base-icon icon-name="SearchStatus" class="tw-mr-2" />
+                </template>
+            </q-input>
+        </template>
+
         <template #content>
             <base-table
                 :columns="tableColumns"

@@ -5,11 +5,19 @@ const routes: RouteRecordRaw[] = [
         path: '/',
         component: () => import('layouts/DashboardLayout.vue'),
         children: [
-            { path: '', component: () => import('pages/IndexPage.vue') },
             {
-                path: '/dashboard',
-                component: () => import('pages/IndexPage.vue'),
-                name: 'dashboard-page'
+                path: '',
+                component: () => import('pages/Dashboard/Calls/Index.vue')
+            },
+            {
+                path: '/dashboard/calls',
+                component: () => import('pages/Dashboard/Calls/Index.vue'),
+                name: 'dashboard-call-page'
+            },
+            {
+                path: '/dashboard/emergency',
+                component: () => import('pages/Dashboard/Emergency/Index.vue'),
+                name: 'dashboard-emergency-page'
             },
 
             // Call Reports
@@ -68,6 +76,12 @@ const routes: RouteRecordRaw[] = [
                 component: () =>
                     import('pages/MasterData/Employee/KPI/Index.vue'),
                 name: 'employee-kpi-page'
+            },
+            {
+                path: '/master-data/employees/kpi/create',
+                component: () =>
+                    import('pages/MasterData/Employee/KPI/Create.vue'),
+                name: 'employee-create-kpi-page'
             },
             {
                 path: '/master-data/employees/kpi/:id/detail',

@@ -16,7 +16,20 @@ const menus: NavigationProps[] = [
         Name: 'Dashboard',
         Icon: 'Category',
         Url: '/dashboard',
-        Children: []
+        Children: [
+            {
+                Name: 'Calls',
+                Icon: 'Chart21',
+                Url: '/dashboard/calls',
+                Children: []
+            },
+            {
+                Name: 'Emergency',
+                Icon: 'Chart2',
+                Url: '/dashboard/emergency',
+                Children: []
+            }
+        ]
     },
     {
         Name: 'Call Reports',
