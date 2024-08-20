@@ -8,6 +8,7 @@ import BaseText from 'components/form/BaseTextField.vue'
 import BaseDate from 'components/form/BaseDate.vue'
 import BaseMonth from 'components/form/BaseMonth.vue'
 import BaseSelect from 'components/form/BaseSelect.vue'
+import VueApexCharts from 'vue3-apexcharts'
 
 export default boot(async ({ app }) => {
     // Common
@@ -21,4 +22,7 @@ export default boot(async ({ app }) => {
     app.component('BaseDate', BaseDate)
     app.component('BaseMonth', BaseMonth)
     app.component('BaseSelect', BaseSelect)
+
+    // Chart
+    app.component('apexchart', VueApexCharts)
 })
