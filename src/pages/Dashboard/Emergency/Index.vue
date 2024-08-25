@@ -58,6 +58,24 @@ const chartOptions = reactive({
         }
     ]
 })
+const stats = reactive([
+    { label: 'Kasus Kecalakaan', color: '#FF5733', value: series.value[0] },
+    { label: 'Kasus Kebakaran', color: '#C70039', value: series.value[1] },
+    { label: 'Kasus Ambulan', color: '#900C3F', value: series.value[2] },
+    { label: 'Kasus PLN', color: '#581845', value: series.value[3] },
+    { label: 'Kasus Mobil', color: '#1C2833', value: series.value[4] },
+    { label: 'Kasus Penanganan', color: '#2E86C1', value: series.value[5] },
+    { label: 'Kasus Kriminal', color: '#28B463', value: series.value[6] },
+    { label: 'Kasus Bencana', color: '#F1C40F', value: series.value[7] },
+    { label: 'Kasus Gawat', color: '#E67E22', value: series.value[8] },
+    { label: 'Kasus KDRT', color: '#8E44AD', value: series.value[9] },
+    { label: 'Kasus Keamanan', color: '#34495E', value: series.value[10] },
+    {
+        label: 'Total Result',
+        color: '#0d1b2a',
+        value: series.value.reduce((a, b) => a + b, 0)
+    }
+])
 </script>
 
 <template>
@@ -96,102 +114,27 @@ const chartOptions = reactive({
         </template>
     </base-card>
 
-    <main class="tw-grid tw-grid-cols-12 tw-gap-5">
-        <base-card
-            title="Jumlah Kasus Berdasarkan Kecamatan"
-            class="tw-col-span-9"
-        >
-            <template #content>
-                <q-markup-table flat>
-                    <thead>
-                        <tr>
-                            <th
-                                class="text-left !tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kecamatan
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Kecalakaan
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Kebakaran
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Ambulan Gratis & Medis (AGD)
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus PLN
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Mobil Jenazah
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Penanganan Pada Hewan
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Kriminal
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Bencana Alam
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Gawat Darurat Lain
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus KDRT
-                            </th>
-                            <th
-                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                            >
-                                Kasus Keamanan dan Ketertiban
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td
-                                class="text-left tw-font-semibold tw-text-teal-600"
-                            >
-                                Benda
-                            </td>
-                            <td class="text-center">2351</td>
-                            <td class="text-center">2049</td>
-                            <td class="text-center">2512</td>
-                            <td class="text-center">2053</td>
-                            <td class="text-center">2427</td>
-                            <td class="text-center">2433</td>
-                            <td class="text-center">2433</td>
-                            <td class="text-center">2733</td>
-                            <td class="text-center">2733</td>
-                            <td class="text-center">2733</td>
-                            <td class="text-center">2733</td>
-                        </tr>
-                    </tbody>
-                </q-markup-table>
+    <main class="tw-grid tw-grid-cols-12 tw-gap-5 tw-mt-5">
+        <div class="tw-col-span-9 tw-grid tw-grid-cols-3 tw-gap-5">
+            <template v-for="item in stats" :key="stats.label">
+                <q-card
+                    flat
+                    class="tw-border-l-8"
+                    :style="{
+                        borderLeftColor: `${item.color}`
+                    }"
+                >
+                    <q-card-section>
+                        <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
+                            {{ item.value }}
+                        </h4>
+                        <div class="tw-text-gray-600">{{ item.label }}</div>
+                    </q-card-section>
+                </q-card>
             </template>
-        </base-card>
+        </div>
 
-        <base-card title="Grand Total" class="tw-col-span-3">
+        <base-card title="Grand Total" class="tw-col-span-3 !tw-mt-0">
             <template #content>
                 <div class="tw-flex tw-justify-center">
                     <apexchart
@@ -204,4 +147,71 @@ const chartOptions = reactive({
             </template>
         </base-card>
     </main>
+
+    <base-card title="Jumlah Kasus Berdasarkan Kecamatan" class="tw-col-span-9">
+        <template #content>
+            <q-markup-table flat>
+                <thead>
+                    <tr>
+                        <th
+                            class="text-left !tw-bg-gray-100 tw-font-medium !tw-text-sm"
+                        >
+                            Kecamatan
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Kecalakaan
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Kebakaran
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Ambulan Gratis & Medis (AGD)
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus PLN
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Mobil Jenazah
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Penanganan Pada Hewan
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Kriminal
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Bencana Alam
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Gawat Darurat Lain
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus KDRT
+                        </th>
+                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
+                            Kasus Keamanan dan Ketertiban
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-left tw-font-semibold tw-text-teal-600">
+                            Benda
+                        </td>
+                        <td class="text-center">2351</td>
+                        <td class="text-center">2049</td>
+                        <td class="text-center">2512</td>
+                        <td class="text-center">2053</td>
+                        <td class="text-center">2427</td>
+                        <td class="text-center">2433</td>
+                        <td class="text-center">2433</td>
+                        <td class="text-center">2733</td>
+                        <td class="text-center">2733</td>
+                        <td class="text-center">2733</td>
+                        <td class="text-center">2733</td>
+                    </tr>
+                </tbody>
+            </q-markup-table>
+        </template>
+    </base-card>
 </template>
