@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import Navigation, { NavigationProps } from 'components/common/Navigation.vue'
 import { useMeta } from 'quasar'
+import logo_image from 'assets/logo_112.png'
 
 defineOptions({
     name: 'MainLayout'
@@ -209,7 +210,10 @@ function toggleLeftDrawer() {
         >
             <q-list class="tw-mt-5">
                 <q-item class="tw-mb-5">
-                    <q-item-section>
+                    <q-item-section
+                        class="tw-flex-row tw-justify-start tw-items-center tw-gap-3"
+                    >
+                        <q-img :src="logo_image" class="tw-w-10" />
                         <h1 class="tw-text-2xl tw-font-semibold tw-text-white">
                             112 Reports.
                         </h1>
