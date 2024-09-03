@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import Navigation, { NavigationProps } from 'components/common/Navigation.vue'
 import { useMeta } from 'quasar'
 import logo_image from 'assets/logo_112.png'
+import { useAuthStore } from 'src/stores/auth'
+import female_avatar from 'assets/female.jpg'
+import male_avatar from 'assets/male.jpg'
+import { storeToRefs } from 'pinia'
 
 defineOptions({
     name: 'MainLayout'
@@ -12,6 +16,9 @@ useMeta({
     title: 'Laporan 112'
 })
 
+// data
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
 const menus: NavigationProps[] = [
     {
         Name: 'Dashboard',
@@ -81,9 +88,9 @@ const menus: NavigationProps[] = [
                 Children: []
             },
             {
-                Name: 'District',
+                Name: 'Regencies',
                 Icon: 'Buildings',
-                Url: '/master-data/districts',
+                Url: '/master-data/regencies',
                 Children: []
             }
         ]
@@ -114,12 +121,40 @@ const menus: NavigationProps[] = [
         ]
     }
 ]
-
 const leftDrawerOpen = ref(false)
+const userAvatar = ref(female_avatar)
+watch(
+    user,
+    () => {
+        console.log('asdkaskld')
+        if (user.value.employee?.avatar == 'default.png') {
+            if (user.value.employee.gender == 'male') {
+                userAvatar.value = male_avatar
+            } else {
+                userAvatar.value = female_avatar
+            }
+        } else {
+            userAvatar.value = user.value.employee?.avatar
+        }
 
-function toggleLeftDrawer() {
+        console.log(userAvatar.value)
+    },
+    {
+        deep: true
+    }
+)
+
+// methods
+const toggleLeftDrawer = () => {
     leftDrawerOpen.value = !leftDrawerOpen.value
 }
+
+// hooks
+onMounted(() => {
+    if (!authStore.user.id) {
+        authStore.fetchUserData()
+    }
+})
 </script>
 
 <template>
@@ -140,7 +175,8 @@ function toggleLeftDrawer() {
                         <div class="tw-flex tw-gap-5 tw-items-center">
                             <q-avatar size="35px">
                                 <q-img
-                                    src="https://images.unsplash.com/uploads/14110635637836178f553/dcc2ccd9?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    v-if="authStore.user"
+                                    :src="userAvatar"
                                     class="tw-w-full tw-h-full tw-object-cover"
                                 />
                             </q-avatar>
@@ -148,10 +184,14 @@ function toggleLeftDrawer() {
                             <div class="tw-flex tw-gap-3 tw-items-center">
                                 <div>
                                     <h1 class="tw-font-semibold tw-text-sm">
-                                        Aldimas Danu Saputra
+                                        {{ user.employee?.name }}
                                     </h1>
                                     <p class="tw-text-xs tw-text-gray-600">
-                                        Administrator
+                                        {{
+                                            user.roles
+                                                ?.map((x) => x.role.name)
+                                                .join(', ')
+                                        }}
                                     </p>
                                 </div>
                             </div>
@@ -215,7 +255,7 @@ function toggleLeftDrawer() {
                     >
                         <q-img :src="logo_image" class="tw-w-10" />
                         <h1 class="tw-text-2xl tw-font-semibold tw-text-white">
-                            112 Reports.
+                            Reports.
                         </h1>
                     </q-item-section>
                 </q-item>

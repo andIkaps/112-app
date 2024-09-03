@@ -1,9 +1,40 @@
-import { RouteRecordRaw } from 'vue-router'
+import { Notify } from 'quasar'
+import {
+    NavigationGuardNext,
+    RouteLocationNormalized,
+    RouteRecordRaw
+} from 'vue-router'
+
+const authRequired = (
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized,
+    next: NavigationGuardNext
+) => {
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+        Notify.create({
+            message: 'Permission Denied!',
+            type: 'warning',
+            timeout: 3000,
+            position: 'bottom-right'
+        })
+
+        next({ name: 'login-page' })
+    } else {
+        if (to.path === '/') {
+            next({ name: 'dashboard-call-page' })
+        } else {
+            next()
+        }
+    }
+}
 
 const routes: RouteRecordRaw[] = [
     {
         path: '/',
         component: () => import('layouts/DashboardLayout.vue'),
+        beforeEnter: authRequired,
         children: [
             {
                 path: '',
@@ -132,7 +163,21 @@ const routes: RouteRecordRaw[] = [
     {
         path: '/auth/login',
         component: () => import('pages/Auth/Login.vue'),
-        name: 'login-page'
+        name: 'login-page',
+        beforeEnter: (to, from, next) => {
+            const token = localStorage.getItem('token')
+            if (token) {
+                Notify.create({
+                    message: 'You have already login.',
+                    type: 'warning',
+                    timeout: 3000,
+                    position: 'bottom-right'
+                })
+                next({ name: 'dashboard-call-page' })
+            } else {
+                next()
+            }
+        }
     },
 
     // Always leave this as last one,

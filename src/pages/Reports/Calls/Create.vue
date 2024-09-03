@@ -2,6 +2,12 @@
 import { onMounted, reactive, ref } from 'vue'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import moment from 'moment'
+import { api } from 'src/boot/axios'
+import { useRouter } from 'vue-router'
+import { Notification } from 'src/boot/notify'
+import { Loading } from 'quasar'
+
+const router = useRouter()
 
 // Data
 const breadcrumbs = ref<IBreadcrumbs[]>([
@@ -23,10 +29,10 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
 ])
 type CallReports = {
     day: string
-    disconnect_calls: number
-    prank_calls: number
-    education_calls: number
-    emergency_calls: number
+    disconnect_call: number
+    prank_call: number
+    education_call: number
+    emergency_call: number
     abandoned: number
 }
 
@@ -37,7 +43,7 @@ type FormSchema = {
     }
     year: string
     day: string
-    calls: CallReports[]
+    detail: CallReports[]
 }
 const form = reactive<FormSchema>({
     month_period: {
@@ -46,12 +52,14 @@ const form = reactive<FormSchema>({
     },
     year: '',
     day: '',
-    calls: []
+    detail: []
 })
 const isSubmitted = ref<boolean>(false)
+const confirmDialog = ref(false)
 
+// methods
 const onSubmitPeriod = () => {
-    form.calls = []
+    form.detail = []
 
     form.day = moment(new Date(`${form.year}-${form.month_period.value}-01`))
         .endOf('month')
@@ -60,24 +68,60 @@ const onSubmitPeriod = () => {
     for (let index = 1; index <= parseInt(form.day); index++) {
         const template: CallReports = {
             day: String(index).padStart(2, '0'),
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
+            disconnect_call: 0,
+            prank_call: 0,
+            education_call: 0,
+            emergency_call: 0,
             abandoned: 0
         }
 
-        form.calls.push(template)
+        form.detail.push(template)
     }
 
     isSubmitted.value = true
 }
 
-const onUpdateMonth = () => {
-    isSubmitted.value = false
-    form.calls = []
+const onSubmitCallReports = async () => {
+    Loading.show({
+        message: 'Please wait..'
+    })
+
+    try {
+        const payload = {
+            ...form,
+            month_period: form.month_period.label
+        }
+
+        const { data: response } = await api.post('/call-reports', payload)
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+
+            router.push({
+                name: 'call-report-page'
+            })
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
 }
 
+const handleAction = (val: boolean) => {
+    confirmDialog.value = false
+
+    if (val) {
+        onSubmitCallReports()
+    }
+}
+
+const onUpdateMonth = () => {
+    isSubmitted.value = false
+    form.detail = []
+}
+
+// hooks
 onMounted(() => {
     form.year = moment().format('YYYY')
 })
@@ -123,7 +167,7 @@ onMounted(() => {
     <template v-if="isSubmitted">
         <base-card title="Input Reports">
             <template #content>
-                <q-form>
+                <q-form @submit.prevent="onSubmitCallReports">
                     <section class="tw-space-y-5">
                         <div
                             class="tw-grid tw-grid-cols-6 tw-gap-5 tw-text-center"
@@ -137,7 +181,7 @@ onMounted(() => {
                         </div>
 
                         <div
-                            v-for="item in form.calls"
+                            v-for="item in form.detail"
                             :key="item.day"
                             class="tw-grid tw-grid-cols-6 tw-gap-5 tw-text-center tw-place-items-center"
                         >
@@ -148,22 +192,22 @@ onMounted(() => {
                             </div>
                             <base-text
                                 align="top"
-                                v-model="item.disconnect_calls"
+                                v-model="item.disconnect_call"
                                 dense
                             />
                             <base-text
                                 align="top"
-                                v-model="item.prank_calls"
+                                v-model="item.prank_call"
                                 dense
                             />
                             <base-text
                                 align="top"
-                                v-model="item.education_calls"
+                                v-model="item.education_call"
                                 dense
                             />
                             <base-text
                                 align="top"
-                                v-model="item.emergency_calls"
+                                v-model="item.emergency_call"
                                 dense
                             />
                             <base-text
@@ -174,14 +218,14 @@ onMounted(() => {
                         </div>
                     </section>
 
-                    <div class="tw-flex tw-justify-start tw-mt-5 tw-gap-2">
+                    <div class="tw-flex tw-justify-center tw-mt-5 tw-gap-2">
                         <q-btn
                             unelevated
                             no-caps
                             label="Submit"
-                            type="submit"
                             color="secondary"
                             :disable="!form.month_period.label"
+                            @click="confirmDialog = true"
                         />
 
                         <q-btn
@@ -198,4 +242,10 @@ onMounted(() => {
             </template>
         </base-card>
     </template>
+
+    <base-confirmation-dialog
+        v-model="confirmDialog"
+        action="confirm_form"
+        @onAction="handleAction"
+    />
 </template>

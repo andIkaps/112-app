@@ -2,6 +2,13 @@
 import { onMounted, reactive, ref } from 'vue'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import moment from 'moment'
+import { useRoute, useRouter } from 'vue-router'
+import { api } from 'src/boot/axios'
+import { Loading } from 'quasar'
+import { Notification } from 'src/boot/notify'
+
+const route = useRoute()
+const router = useRouter()
 
 // Data
 const breadcrumbs = ref<IBreadcrumbs[]>([
@@ -21,12 +28,13 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
         icon: ''
     }
 ])
+
 type CallReports = {
     day: string
-    disconnect_calls: number
-    prank_calls: number
-    education_calls: number
-    emergency_calls: number
+    disconnect_call: number
+    prank_call: number
+    education_call: number
+    emergency_call: number
     abandoned: number
 }
 
@@ -37,265 +45,19 @@ type FormSchema = {
     }
     year: string
     day: string
-    calls: CallReports[]
+    detail: CallReports[]
 }
+
 const form = reactive<FormSchema>({
-    month_period: { label: 'January', value: '01' },
-    year: '2024',
-    day: '31',
-    calls: [
-        {
-            day: '01',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '02',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '03',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '04',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '05',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '06',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '07',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '08',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '09',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '10',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '11',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '12',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '13',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '14',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '15',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '16',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '17',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '18',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '19',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '20',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '21',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '22',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '23',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '24',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '25',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '26',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '27',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '28',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '29',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '30',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        },
-        {
-            day: '31',
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
-            abandoned: 0
-        }
-    ]
+    month_period: { label: '', value: '' },
+    year: '',
+    day: '',
+    detail: []
 })
 const isSubmitted = ref<boolean>(true)
+const confirmDialog = ref(false)
 
+// methods
 const onSubmitPeriod = () => {
     form.day = moment(new Date(`${form.year}-${form.month_period.value}-01`))
         .endOf('month')
@@ -304,21 +66,82 @@ const onSubmitPeriod = () => {
     for (let index = 1; index <= parseInt(form.day); index++) {
         const template: CallReports = {
             day: String(index).padStart(2, '0'),
-            disconnect_calls: 0,
-            prank_calls: 0,
-            education_calls: 0,
-            emergency_calls: 0,
+            disconnect_call: 0,
+            prank_call: 0,
+            education_call: 0,
+            emergency_call: 0,
             abandoned: 0
         }
 
-        form.calls.push(template)
+        form.detail.push(template)
     }
 
     isSubmitted.value = true
 }
 
+const fetchCallReportByID = async () => {
+    Loading.show({
+        message: 'Please wait..'
+    })
+
+    try {
+        const { data: response } = await api.get(
+            `/call-reports/${route.params.id}`
+        )
+
+        if (response.data) {
+            form.detail = response.data.detail
+            form.month_period.label = response.data.month_period
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+const onSubmitCallReports = async () => {
+    Loading.show({
+        message: 'Please wait..'
+    })
+
+    try {
+        const payload = {
+            ...form,
+            month_period: form.month_period.label
+        }
+
+        const { data: response } = await api.put(
+            `/call-reports/${route.params.id}`,
+            payload
+        )
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+
+            router.push({
+                name: 'call-report-page'
+            })
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+const handleAction = (val: boolean) => {
+    confirmDialog.value = false
+
+    if (val) {
+        onSubmitCallReports()
+    }
+}
+
+// hooks
 onMounted(() => {
     form.year = moment().format('YYYY')
+    fetchCallReportByID()
 })
 </script>
 
@@ -363,7 +186,7 @@ onMounted(() => {
     <template v-if="isSubmitted">
         <base-card title="Input Reports">
             <template #content>
-                <q-form>
+                <q-form @submit.prevent="onSubmitCallReports">
                     <section class="tw-space-y-5">
                         <div
                             class="tw-grid tw-grid-cols-6 tw-gap-5 tw-text-center"
@@ -377,7 +200,7 @@ onMounted(() => {
                         </div>
 
                         <div
-                            v-for="item in form.calls"
+                            v-for="item in form.detail"
                             :key="item.day"
                             class="tw-grid tw-grid-cols-6 tw-gap-5 tw-text-center tw-place-items-center"
                         >
@@ -388,22 +211,22 @@ onMounted(() => {
                             </div>
                             <base-text
                                 align="top"
-                                v-model="item.disconnect_calls"
+                                v-model="item.disconnect_call"
                                 dense
                             />
                             <base-text
                                 align="top"
-                                v-model="item.prank_calls"
+                                v-model="item.prank_call"
                                 dense
                             />
                             <base-text
                                 align="top"
-                                v-model="item.education_calls"
+                                v-model="item.education_call"
                                 dense
                             />
                             <base-text
                                 align="top"
-                                v-model="item.emergency_calls"
+                                v-model="item.emergency_call"
                                 dense
                             />
                             <base-text
@@ -414,14 +237,14 @@ onMounted(() => {
                         </div>
                     </section>
 
-                    <div class="tw-flex tw-justify-start tw-mt-5 tw-gap-2">
+                    <div class="tw-flex tw-justify-center tw-mt-5 tw-gap-2">
                         <q-btn
                             unelevated
                             no-caps
                             label="Update"
-                            type="submit"
                             color="secondary"
                             :disable="!form.month_period.label"
+                            @click="confirmDialog = true"
                         />
 
                         <q-btn
@@ -438,4 +261,10 @@ onMounted(() => {
             </template>
         </base-card>
     </template>
+
+    <base-confirmation-dialog
+        v-model="confirmDialog"
+        action="confirm_form"
+        @onAction="handleAction"
+    />
 </template>

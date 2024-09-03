@@ -134,9 +134,11 @@ const stats = reactive([
             </template>
         </div>
 
-        <base-card title="Grand Total" class="tw-col-span-3 !tw-mt-0">
+        <base-card title="Grand Total" class="tw-col-span-3 !tw-mt-0 tw-h-full">
             <template #content>
-                <div class="tw-flex tw-justify-center">
+                <div
+                    class="tw-flex tw-justify-center tw-items-center tw-h-full"
+                >
                     <apexchart
                         type="donut"
                         :options="chartOptions"

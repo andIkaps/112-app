@@ -1,17 +1,59 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 // Import Swiper Vue.js components
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Autoplay } from 'swiper/modules'
 import logo_image from 'assets/logo_112.png'
+import { Autoplay } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { useRouter } from 'vue-router'
 
 // Import Swiper styles
+import { Loading, Notify } from 'quasar'
+import { api } from 'src/boot/axios'
 import 'swiper/css'
+import { useAuthStore } from 'src/stores/auth'
 
+// common
+const router = useRouter()
+const authStore = useAuthStore()
+
+// data
 const form = ref<{ username: string; password: string }>({
     username: '',
     password: ''
 })
+
+// methods
+const onLogin = async () => {
+    Loading.show({
+        message: 'Please wait...'
+    })
+
+    try {
+        const { data: response } = await api.post('/auth/login', {
+            ...form.value
+        })
+
+        if (response.data) {
+            localStorage.setItem('token', response.data.token)
+            authStore.token = response.data.token
+
+            Notify.create({
+                message: response.message,
+                type: 'positive',
+                timeout: 3000,
+                position: 'bottom-right'
+            })
+
+            router.push({
+                name: 'dashboard-call-page'
+            })
+        }
+    } catch (error: any) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
 </script>
 
 <template>
@@ -27,7 +69,7 @@ const form = ref<{ username: string; password: string }>({
                     Enter the username and password.
                 </p>
 
-                <q-form class="tw-mt-8 tw-space-y-5">
+                <q-form @submit.prevent="onLogin" class="tw-mt-8 tw-space-y-5">
                     <base-text
                         label="Username"
                         v-model="form.username"
@@ -47,6 +89,7 @@ const form = ref<{ username: string; password: string }>({
                     />
 
                     <q-btn
+                        type="submit"
                         unelevated
                         no-caps
                         color="secondary"

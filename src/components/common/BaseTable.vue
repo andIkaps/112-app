@@ -64,7 +64,7 @@
 
         <!-- Loading Slot -->
         <template v-slot:loading>
-            <q-inner-loading showing color="warning" />
+            <q-inner-loading showing color="secondary" />
         </template>
     </q-table>
 </template>

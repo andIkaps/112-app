@@ -1,5 +1,8 @@
 import { boot } from 'quasar/wrappers'
 import axios, { AxiosInstance } from 'axios'
+import { Notify } from 'quasar'
+import { useRouter } from 'vue-router'
+import { Notification } from './notify'
 
 declare module '@vue/runtime-core' {
     interface ComponentCustomProperties {
@@ -14,11 +17,11 @@ declare module '@vue/runtime-core' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' })
+const api = axios.create({ baseURL: import.meta.env.VITE_BASE_URL })
 api.interceptors.request.use((config: any) => {
     config.headers = {
-        // 'Content-Type': 'application/json',
-        // Authorization: `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
     }
 
     return config
@@ -28,15 +31,27 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response.status == 401) {
-            // localStorage.removeItem('token')
-            // 401 Unauthorized
-            // Do Something..
+            Notification('Your Session is expired', 'warning')
+            const router = useRouter()
+
+            localStorage.removeItem('token')
+            router.push({
+                name: 'login-page'
+            })
         } else if (error.response.status == 400) {
-            // 400 Bad Request
-            // Do Something..
+            if (error.response.data.message) {
+                Notification(error.response.data.message, 'negative')
+            } else {
+                Notification('Action Failed!', 'negative')
+            }
+        } else if (error.response.status == 422) {
+            if (error.response.data.message) {
+                Notification(error.response.data.message, 'negative')
+            } else {
+                Notification('Action Failed!', 'negative')
+            }
         } else if (error.response.status == 500) {
-            // 500 Internal Server Error
-            // Do Something..
+            Notification('Action Failed!', 'negative')
         }
 
         return Promise.reject(error)

@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { QTableColumn } from 'quasar'
+import { Loading, QTableColumn } from 'quasar'
+import { api } from 'src/boot/axios'
+import { Notification } from 'src/boot/notify'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
-// Data
+// data
+const confirmDialog = ref(false)
 const searchKeyword = ref<string>('')
 const tableColumns: QTableColumn[] = [
     {
@@ -16,31 +19,31 @@ const tableColumns: QTableColumn[] = [
         name: 'disconnect_call',
         label: 'Disconnect Calls',
         align: 'left',
-        field: (row: any) => row.disconnect_call
+        field: (row: any) => row.total_disconnect_call
     },
     {
         name: 'prank_call',
         label: 'Prank Calls',
         align: 'left',
-        field: (row: any) => row.prank_call
+        field: (row: any) => row.total_prank_call
     },
     {
         name: 'education_call',
         label: 'Education Calls',
         align: 'left',
-        field: (row: any) => row.education_call
+        field: (row: any) => row.total_education_call
     },
     {
         name: 'emergency_call',
         label: 'Emergency Calls',
         align: 'left',
-        field: (row: any) => row.emergency_call
+        field: (row: any) => row.total_emergency_call
     },
     {
         name: 'abandoned',
         label: 'Abandoned',
         align: 'left',
-        field: (row: any) => row.abandoned
+        field: (row: any) => row.total_abandoned
     },
     {
         name: 'action',
@@ -49,16 +52,7 @@ const tableColumns: QTableColumn[] = [
         field: ''
     }
 ]
-const tableRows = ref([
-    {
-        period: 'Jan 2024',
-        disconnect_call: 224,
-        prank_call: 540,
-        education_call: 20,
-        emergency_call: 330,
-        abandoned: 2
-    }
-])
+const tableRows = ref([])
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -71,6 +65,65 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
         icon: 'Headphones'
     }
 ])
+const callID = ref<number>()
+const tableLoading = ref<boolean>(false)
+
+// methods
+const fetchCallReport = async () => {
+    try {
+        tableLoading.value = true
+
+        const { data: response } = await api.get('/call-reports')
+
+        if (response.data) {
+            tableRows.value = response.data
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        tableLoading.value = false
+    }
+}
+
+const openDeleteDialog = (id: number) => {
+    callID.value = id
+
+    confirmDialog.value = true
+}
+
+const handleAction = (val: boolean) => {
+    confirmDialog.value = false
+    if (val) {
+        onDeleteCallReport()
+    } else {
+        callID.value = 0
+    }
+}
+
+const onDeleteCallReport = async () => {
+    Loading.show({
+        message: 'Please wait...'
+    })
+
+    try {
+        const { data: response } = await api.delete(
+            `/call-reports/${callID.value}`
+        )
+
+        if (response.data) {
+            fetchCallReport()
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+// hooks
+onMounted(() => {
+    fetchCallReport()
+})
 </script>
 
 <template>
@@ -123,15 +176,26 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
             <base-table
                 :columns="tableColumns"
                 :rows="tableRows"
+                :loading="tableLoading"
                 row-key="name"
             >
                 <template #period="props">
                     <q-td>
-                        <div
-                            class="tw-underline tw-cursor-pointer tw-text-teal-600"
+                        <router-link
+                            :to="{
+                                name: 'call-report-edit-page',
+                                params: {
+                                    id: props.row.id || 0
+                                }
+                            }"
                         >
-                            {{ props.row.period }}
-                        </div>
+                            <div
+                                class="tw-underline tw-cursor-pointer tw-text-teal-600"
+                            >
+                                {{ props.row.month_period }}
+                                {{ props.row.year }}
+                            </div>
+                        </router-link>
                     </q-td>
                 </template>
 
@@ -151,7 +215,7 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
                                         :to="{
                                             name: 'call-report-edit-page',
                                             params: {
-                                                id: '123'
+                                                id: props.row.id || 0
                                             }
                                         }"
                                     >
@@ -166,7 +230,10 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
                                         </q-item-section>
                                     </q-item>
                                     <q-separator />
-                                    <q-item clickable>
+                                    <q-item
+                                        clickable
+                                        @click="openDeleteDialog(props.row.id)"
+                                    >
                                         <q-item-section
                                             class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
                                         >
@@ -186,4 +253,10 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
             </base-table>
         </template>
     </base-card>
+
+    <base-confirmation-dialog
+        v-model="confirmDialog"
+        action="delete"
+        @onAction="handleAction"
+    />
 </template>

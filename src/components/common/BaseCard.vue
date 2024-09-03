@@ -9,7 +9,7 @@ defineProps<IProps>()
 
 <template>
     <q-card flat class="tw-mt-5 tw-p-3">
-        <q-card-section>
+        <q-card-section class="!tw-h-full">
             <header class="tw-flex tw-justify-between tw-items-center">
                 <div>
                     <h1 class="tw-text-sm tw-font-semibold tw-text-gray-800">
@@ -25,7 +25,7 @@ defineProps<IProps>()
                 </div>
             </header>
 
-            <section class="tw-mt-8">
+            <section class="tw-mt-8 tw-h-full">
                 <slot name="content"></slot>
             </section>
         </q-card-section>
