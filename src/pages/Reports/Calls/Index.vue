@@ -111,6 +111,7 @@ const onDeleteCallReport = async () => {
         )
 
         if (response.data) {
+            Notification(response.message, 'positive')
             fetchCallReport()
         }
     } catch (error) {

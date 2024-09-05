@@ -82,15 +82,15 @@ const menus: NavigationProps[] = [
                 Children: []
             },
             {
-                Name: 'Status',
+                Name: 'Marital Status',
                 Icon: 'Book1',
                 Url: '/master-data/status',
                 Children: []
             },
             {
-                Name: 'Regencies',
+                Name: 'Districts',
                 Icon: 'Buildings',
-                Url: '/master-data/regencies',
+                Url: '/master-data/districts',
                 Children: []
             }
         ]

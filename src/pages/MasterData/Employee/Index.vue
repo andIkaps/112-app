@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import moment from 'moment'
 import { QTableColumn } from 'quasar'
+import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 // Data
 const searchKeyword = ref<string>('')
@@ -29,19 +30,19 @@ const tableColumns: QTableColumn[] = [
         name: 'dob',
         label: 'Date of Birth',
         align: 'left',
-        field: (row: any) => row.dob
+        field: (row: any) => moment(row.dob).format('LL')
     },
     {
         name: 'status',
         label: 'Status',
         align: 'left',
-        field: (row: any) => row.status
+        field: (row: any) => row.marital_status?.name || '-'
     },
     {
         name: 'religion',
         label: 'Religion',
         align: 'left',
-        field: (row: any) => row.religion
+        field: (row: any) => row.religion?.name || '-'
     },
     {
         name: 'address',
@@ -56,17 +57,7 @@ const tableColumns: QTableColumn[] = [
         field: ''
     }
 ]
-const tableRows = ref([
-    {
-        name: 'Aldimas Danu Saputra',
-        jasnita_number: 10103,
-        gender: 'Male',
-        dob: moment(new Date('1994/07/25')).format('LL'),
-        status: 'Single',
-        religion: 'Islam',
-        address: 'Kota Tangerang Selatan '
-    }
-])
+const tableRows = ref([])
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -79,6 +70,24 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
         icon: 'UserOctagon'
     }
 ])
+
+// methods
+const fetchEmployees = async () => {
+    try {
+        const { data: response } = await api.get('/employees')
+
+        if (response.data) {
+            tableRows.value = response.data
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// hooks
+onMounted(() => {
+    fetchEmployees()
+})
 </script>
 
 <template>

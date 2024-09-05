@@ -7,14 +7,18 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { useRouter } from 'vue-router'
 
 // Import Swiper styles
-import { Loading, Notify } from 'quasar'
+import { Loading, Notify, useMeta } from 'quasar'
 import { api } from 'src/boot/axios'
-import 'swiper/css'
 import { useAuthStore } from 'src/stores/auth'
+import 'swiper/css'
 
 // common
 const router = useRouter()
 const authStore = useAuthStore()
+
+useMeta({
+    title: 'Laporan 112'
+})
 
 // data
 const form = ref<{ username: string; password: string }>({

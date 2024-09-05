@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import moment from 'moment'
-import { QTableColumn } from 'quasar'
+import { Loading, QTableColumn } from 'quasar'
+import { api } from 'src/boot/axios'
+import { Notification } from 'src/boot/notify'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
-import { ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 
 // Data
 const searchKeyword = ref<string>('')
@@ -16,15 +18,11 @@ const tableColumns: QTableColumn[] = [
     {
         name: 'action',
         label: 'Action',
-        align: 'left',
+        align: 'right',
         field: ''
     }
 ]
-const tableRows = ref([
-    {
-        name: 'Married'
-    }
-])
+const tableRows = ref([])
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -38,6 +36,142 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
     }
 ])
 const dialog = ref<boolean>(false)
+const isEdit = ref<boolean>(false)
+const maritalStatusID = ref<number>()
+const form = reactive<{ name: string }>({
+    name: ''
+})
+const confirmDialog = ref(false)
+
+// methods
+const fetchMaritalStatus = async () => {
+    try {
+        const { data: response } = await api.get('/marital-status')
+
+        if (response.data) {
+            tableRows.value = response.data
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const openDialog = (data?: any) => {
+    if (data) {
+        isEdit.value = true
+
+        form.name = data.name
+        maritalStatusID.value = data.id
+    }
+
+    dialog.value = true
+}
+
+const closeDialog = () => {
+    dialog.value = false
+    isEdit.value = false
+
+    form.name = ''
+    maritalStatusID.value = 0
+}
+
+const onSubmitMaritalStatus = () => {
+    if (!isEdit.value) {
+        onCreateMaritalStatus()
+    } else {
+        onUpdateMaritalStatus()
+    }
+}
+
+const onCreateMaritalStatus = async () => {
+    try {
+        Loading.show({
+            message: 'Please wait...'
+        })
+
+        const { data: response } = await api.post('/marital-status', {
+            name: form.name
+        })
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+
+            fetchMaritalStatus()
+            closeDialog()
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+const onUpdateMaritalStatus = async () => {
+    try {
+        Loading.show({
+            message: 'Please wait...'
+        })
+
+        const { data: response } = await api.put(
+            `/marital-status/${maritalStatusID.value}`,
+            {
+                name: form.name
+            }
+        )
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+
+            fetchMaritalStatus()
+            closeDialog()
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+const openDeleteDialog = (id: number) => {
+    maritalStatusID.value = id
+
+    confirmDialog.value = true
+}
+
+const handleAction = (val: boolean) => {
+    confirmDialog.value = false
+    if (val) {
+        onDeleteMaritalStatus()
+    } else {
+        maritalStatusID.value = 0
+    }
+}
+
+const onDeleteMaritalStatus = async () => {
+    Loading.show({
+        message: 'Please wait...'
+    })
+
+    try {
+        const { data: response } = await api.delete(
+            `/marital-status/${maritalStatusID.value}`
+        )
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+            fetchMaritalStatus()
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+// hooks
+onMounted(() => {
+    fetchMaritalStatus()
+})
 </script>
 
 <template>
@@ -107,7 +241,7 @@ const dialog = ref<boolean>(false)
                 </template>
 
                 <template #action="props">
-                    <q-td>
+                    <q-td class="tw-flex tw-justify-end">
                         <q-btn flat no-caps unelevated color="secondary">
                             <base-icon icon-name="More" size="16" />
 
@@ -117,7 +251,10 @@ const dialog = ref<boolean>(false)
                                 class="tw-shadow-lg tw-shadow-gray-50"
                             >
                                 <q-list style="min-width: 100px">
-                                    <q-item clickable>
+                                    <q-item
+                                        clickable
+                                        @click="openDialog(props.row)"
+                                    >
                                         <q-item-section
                                             class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
                                         >
@@ -129,7 +266,10 @@ const dialog = ref<boolean>(false)
                                         </q-item-section>
                                     </q-item>
                                     <q-separator />
-                                    <q-item clickable>
+                                    <q-item
+                                        clickable
+                                        @click="openDeleteDialog(props.row.id)"
+                                    >
                                         <q-item-section
                                             class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
                                         >
@@ -152,20 +292,37 @@ const dialog = ref<boolean>(false)
 
     <q-dialog v-model="dialog" persistent>
         <q-card style="min-width: 500px">
-            <q-form>
+            <q-form @submit="onSubmitMaritalStatus">
                 <q-card-section>
                     <h1 class="tw-font-semibold tw-text-lg tw-mb-5">
-                        Create Status
+                        {{ isEdit ? 'Edit' : 'Create' }} Marital Status
                     </h1>
 
-                    <base-text label="Name" align="top" />
+                    <base-text
+                        label="Name"
+                        v-model="form.name"
+                        align="top"
+                        required
+                    />
                 </q-card-section>
 
                 <q-card-actions align="right">
-                    <q-btn flat label="Cancel" color="negative" v-close-popup />
-                    <q-btn flat label="Submit" color="info" v-close-popup />
+                    <q-btn
+                        flat
+                        label="Cancel"
+                        color="negative"
+                        v-close-popup
+                        @click="closeDialog"
+                    />
+                    <q-btn flat type="submit" label="Submit" color="info" />
                 </q-card-actions>
             </q-form>
         </q-card>
     </q-dialog>
+
+    <base-confirmation-dialog
+        v-model="confirmDialog"
+        action="delete"
+        @onAction="handleAction"
+    />
 </template>

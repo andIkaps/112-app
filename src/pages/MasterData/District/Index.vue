@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import moment from 'moment'
 import { QTableColumn } from 'quasar'
+import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 // Data
 const searchKeyword = ref<string>('')
@@ -20,11 +21,7 @@ const tableColumns: QTableColumn[] = [
         field: ''
     }
 ]
-const tableRows = ref([
-    {
-        name: 'Kecamatan Benda'
-    }
-])
+const tableRows = ref([])
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -38,6 +35,24 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
     }
 ])
 const dialog = ref<boolean>(false)
+
+// methods
+const fetchDistricts = async () => {
+    try {
+        const { data: response } = await api.get('/districts')
+
+        if (response.data) {
+            tableRows.value = response.data
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// hooks
+onMounted(() => {
+    fetchDistricts()
+})
 </script>
 
 <template>
