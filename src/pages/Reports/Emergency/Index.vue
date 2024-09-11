@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { QTableColumn } from 'quasar'
+import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
-// Data
+// data
 const searchKeyword = ref<string>('')
 const tableColumns: QTableColumn[] = [
     {
@@ -16,7 +17,7 @@ const tableColumns: QTableColumn[] = [
         name: 'kecamatan',
         label: 'Kecamatan',
         align: 'left',
-        field: (row: any) => row.kecamatan
+        field: (row: any) => row.district?.name || '-'
     },
     {
         name: 'kecelakaan',
@@ -91,23 +92,7 @@ const tableColumns: QTableColumn[] = [
         field: ''
     }
 ]
-const tableRows = ref([
-    {
-        period: 'Jan 2024',
-        kecamatan: 'Karawaci',
-        kecelakaan: 540,
-        kebakaran: 20,
-        ambulan_gratis: 330,
-        pln: 2,
-        mobil_jenazah: 0,
-        penangan_hewan: 550,
-        keamanan: 50,
-        kriminal: 20,
-        bencana_alam: 0,
-        kdrt: 130,
-        gawat_darurat: 30
-    }
-])
+const tableRows = ref([])
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -120,6 +105,24 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
         icon: 'Brodcast'
     }
 ])
+
+// methods
+const fetchEmergencyReports = async () => {
+    try {
+        const { data: response } = await api.get('/emergency-reports')
+
+        if (response.data) {
+            tableRows.value = response.data
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// hooks
+onMounted(() => {
+    fetchEmergencyReports()
+})
 </script>
 
 <template>
@@ -179,7 +182,7 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
                         <div
                             class="tw-underline tw-cursor-pointer tw-text-teal-600"
                         >
-                            {{ props.row.period }}
+                            {{ props.row.period }} {{ props.row.year }}
                         </div>
                     </q-td>
                 </template>

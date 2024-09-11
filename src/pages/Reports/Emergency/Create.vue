@@ -1,17 +1,10 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, toRef, watch } from 'vue'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import moment from 'moment'
 import { Notify } from 'quasar'
-
-type CallReports = {
-    day: string
-    disconnect_calls: number
-    prank_calls: number
-    education_calls: number
-    emergency_calls: number
-    abandoned: number
-}
+import { api } from 'src/boot/axios'
+import { Notification } from 'src/boot/notify'
 
 type FormSchema = {
     month_period: {
@@ -19,12 +12,25 @@ type FormSchema = {
         value: any
     }
     year: string
-    day: string
-    calls: CallReports[]
-    kecamatan: any
+    district_id: any
+    day: any
+    detail: {
+        district_id: number
+        kecelakaan: number
+        kebakaran: number
+        ambulan_gratis: number
+        pln: number
+        mobil_jenazah: number
+        penanganan_hewan: number
+        keamanan: number
+        kriminal: number
+        bencana_alam: number
+        kdrt: number
+        gawat_darurat_lain: number
+    }[]
 }
 
-// Data
+// data
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -47,48 +53,85 @@ const form = reactive<FormSchema>({
         label: '',
         value: ''
     },
-    year: '',
     day: '',
-    calls: [],
-    kecamatan: []
+    year: '',
+    district_id: [],
+    detail: []
 })
 const isSubmitted = ref<boolean>(false)
-const optDistrict = ref([
-    { label: 'Batu Ceper', value: 'batu_ceper' },
-    { label: 'Benda', value: 'benda' },
-    { label: 'Cibodas', value: 'cibodas' },
-    { label: 'Ciledug', value: 'ciledug' },
-    { label: 'Cipondoh', value: 'cipondoh' },
-    { label: 'Jatiuwung', value: 'jatiuwung' },
-    { label: 'Karang Tengah', value: 'karang_tengah' },
-    { label: 'Karawaci', value: 'karawaci' },
-    { label: 'Larangan', value: 'larangan' },
-    { label: 'Neglasari', value: 'neglasari' },
-    { label: 'Priuk', value: 'priuk' },
-    { label: 'Pinang', value: 'pinang' },
-    { label: 'Tangerang', value: 'tangerang' }
-])
+const optDistrict = ref<{ label: string; value: number }[]>([])
+const confirmDialog = ref(false)
 
+// methods
 const onSubmitPeriod = () => {
-    if (form.kecamatan.length) {
-        form.day = moment(
-            new Date(`${form.year}-${form.month_period.value}-01`)
-        )
-            .endOf('month')
-            .format('D')
+    form.day = moment(new Date(`${form.year}-${form.month_period.value}-01`))
+        .endOf('month')
+        .format('D')
 
-        isSubmitted.value = true
-    } else {
-        Notify.create({
-            message: 'Kecamatan is required field!',
-            type: 'info',
-            timeout: 3000
+    isSubmitted.value = true
+}
+
+const onSubmitEmergencyReport = async () => {
+    try {
+        const { data: response } = await api.post('/emergency-reports', {
+            period: form.month_period.label,
+            year: form.year,
+            detail: form.detail
         })
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+        }
+    } catch (error) {
+        console.log(error)
     }
 }
 
+const handleAction = (val: boolean) => {
+    confirmDialog.value = false
+
+    if (val) {
+        onSubmitEmergencyReport()
+    }
+}
+
+const fetchDistrict = async () => {
+    try {
+        const { data: response } = await api.get('/districts')
+
+        if (response.data) {
+            optDistrict.value = response.data.map(
+                (x: { name: string; id: number }) => {
+                    form.detail.push({
+                        district_id: x.id,
+                        kecelakaan: 0,
+                        kebakaran: 0,
+                        ambulan_gratis: 0,
+                        pln: 0,
+                        mobil_jenazah: 0,
+                        penanganan_hewan: 0,
+                        keamanan: 0,
+                        kriminal: 0,
+                        bencana_alam: 0,
+                        kdrt: 0,
+                        gawat_darurat_lain: 0
+                    })
+
+                    return {
+                        label: x.name,
+                        value: x.id
+                    }
+                }
+            )
+        }
+    } catch (error) {}
+}
+
+// hooks
 onMounted(() => {
     form.year = moment().format('YYYY')
+
+    fetchDistrict()
 })
 </script>
 
@@ -117,19 +160,6 @@ onMounted(() => {
                     :required="true"
                 />
 
-                <base-select
-                    label="Kecamatan"
-                    v-model="form.kecamatan"
-                    :options="optDistrict"
-                    search
-                    dense
-                    :emit-value="false"
-                    :map-options="false"
-                    multiple
-                    use-chips
-                    :required="true"
-                />
-
                 <div class="tw-flex tw-justify-center">
                     <q-btn
                         unelevated
@@ -146,10 +176,10 @@ onMounted(() => {
 
     <template v-if="isSubmitted">
         <base-card
-            v-for="item in form.kecamatan"
-            :key="item"
+            v-for="item in form.detail"
+            :key="item.district_id"
             :title="`Kecamatan : ${
-                optDistrict.find((x) => x.value == item)?.label
+                optDistrict.find((x: any) => x.value == item.district_id)?.label
             }`"
             subtitle="Input Reports"
         >
@@ -157,31 +187,70 @@ onMounted(() => {
             <template #content>
                 <q-form>
                     <section class="tw-grid tw-grid-cols-4 tw-gap-5">
-                        <base-text align="top" label="Kecelakaan" dense />
-                        <base-text align="top" label="Kebakaran" dense />
+                        <base-text
+                            align="top"
+                            label="Kecelakaan"
+                            v-model="item.kecelakaan"
+                            dense
+                        />
+                        <base-text
+                            align="top"
+                            label="Kebakaran"
+                            v-model="item.kebakaran"
+                            dense
+                        />
                         <base-text
                             align="top"
                             label="Ambulan Gratis & Medis (AGD)"
+                            v-model="item.ambulan_gratis"
                             dense
                         />
-                        <base-text align="top" label="PLN" dense />
-                        <base-text align="top" label="Mobil jenazah" dense />
+                        <base-text
+                            align="top"
+                            label="PLN"
+                            v-model="item.pln"
+                            dense
+                        />
+                        <base-text
+                            align="top"
+                            label="Mobil jenazah"
+                            v-model="item.mobil_jenazah"
+                            dense
+                        />
                         <base-text
                             align="top"
                             label="Penanganan Pada Hewan"
+                            v-model="item.penanganan_hewan"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Keamanan dan Ketertiban"
+                            v-model="item.keamanan"
                             dense
                         />
-                        <base-text align="top" label="Kriminal" dense />
-                        <base-text align="top" label="Bencana Alam" dense />
-                        <base-text align="top" label="KDRT" dense />
+                        <base-text
+                            align="top"
+                            label="Kriminal"
+                            v-model="item.kriminal"
+                            dense
+                        />
+                        <base-text
+                            align="top"
+                            label="Bencana Alam"
+                            v-model="item.bencana_alam"
+                            dense
+                        />
+                        <base-text
+                            align="top"
+                            label="KDRT"
+                            v-model="item.kdrt"
+                            dense
+                        />
                         <base-text
                             align="top"
                             label="Gawat Darurat Lain"
+                            v-model="item.gawat_darurat_lain"
                             dense
                         />
                     </section>
@@ -197,6 +266,7 @@ onMounted(() => {
                 type="submit"
                 color="secondary"
                 :disable="!form.month_period.label"
+                @click="confirmDialog = true"
             />
 
             <q-btn
@@ -210,4 +280,10 @@ onMounted(() => {
             />
         </div>
     </template>
+
+    <base-confirmation-dialog
+        v-model="confirmDialog"
+        action="confirm_form"
+        @onAction="handleAction"
+    />
 </template>
