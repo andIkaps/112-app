@@ -7,14 +7,16 @@ import { useAuthStore } from 'src/stores/auth'
 import female_avatar from 'assets/female.jpg'
 import male_avatar from 'assets/male.jpg'
 import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
 
+// common
 defineOptions({
     name: 'MainLayout'
 })
-
 useMeta({
     title: 'Laporan 112'
 })
+const router = useRouter()
 
 // data
 const authStore = useAuthStore()
@@ -149,6 +151,14 @@ const toggleLeftDrawer = () => {
     leftDrawerOpen.value = !leftDrawerOpen.value
 }
 
+const onLogout = () => {
+    localStorage.removeItem('token')
+
+    router.push({
+        name: 'login-page'
+    })
+}
+
 // hooks
 onMounted(() => {
     if (!authStore.user.id) {
@@ -220,7 +230,11 @@ onMounted(() => {
 
                                     <q-separator />
 
-                                    <q-item clickable v-close-popup>
+                                    <q-item
+                                        clickable
+                                        v-close-popup
+                                        @click="onLogout"
+                                    >
                                         <q-item-section>
                                             <div
                                                 class="tw-flex tw-items-center tw-justify-start tw-gap-3 tw-text-xs"
