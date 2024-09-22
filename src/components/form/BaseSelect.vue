@@ -23,7 +23,7 @@
                 :options="valOptions"
                 :class="!required ?? 'tw-mb-6'"
                 :rules="
-                    required ? [(val) => !!val || 'Field is required'] : null
+                    required ? [(val) => !!val || `${label} is required`] : null
                 "
                 @update:model-value="
                     (value) => $emit('update:modelValue', value)

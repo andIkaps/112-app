@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import moment from 'moment'
-import { QTableColumn } from 'quasar'
+import { Loading, QTableColumn } from 'quasar'
 import { api } from 'src/boot/axios'
+import { Notification } from 'src/boot/notify'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import { onMounted, ref } from 'vue'
 
-// Data
+// data
+const baseImageURL = import.meta.env.VITE_BASE_IMAGE_URL
 const searchKeyword = ref<string>('')
 const tableColumns: QTableColumn[] = [
     {
@@ -46,9 +48,15 @@ const tableColumns: QTableColumn[] = [
     },
     {
         name: 'address',
-        label: 'Adress',
+        label: 'Address',
         align: 'left',
         field: (row: any) => row.address
+    },
+    {
+        name: 'avatar',
+        label: 'Avatar',
+        align: 'left',
+        field: (row: any) => row.avatar
     },
     {
         name: 'action',
@@ -70,6 +78,8 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
         icon: 'UserOctagon'
     }
 ])
+const confirmDialog = ref(false)
+const employeeID = ref<number>(0)
 
 // methods
 const fetchEmployees = async () => {
@@ -81,6 +91,42 @@ const fetchEmployees = async () => {
         }
     } catch (error) {
         console.log(error)
+    }
+}
+
+const openDeleteDialog = (id: number) => {
+    employeeID.value = id
+
+    confirmDialog.value = true
+}
+
+const handleAction = (val: boolean) => {
+    confirmDialog.value = false
+    if (val) {
+        onDeleteEmployee()
+    } else {
+        employeeID.value = 0
+    }
+}
+
+const onDeleteEmployee = async () => {
+    Loading.show({
+        message: 'Please wait...'
+    })
+
+    try {
+        const { data: response } = await api.delete(
+            `/employees/${employeeID.value}`
+        )
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+            fetchEmployees()
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
     }
 }
 
@@ -143,13 +189,28 @@ onMounted(() => {
                 row-key="name"
             >
                 <template #name="props">
-                    <q-td>
-                        <div
-                            class="tw-underline tw-cursor-pointer tw-text-teal-600"
-                        >
+                    <router-link
+                        :to="{
+                            name: 'employee-edit-page',
+                            params: {
+                                id: props.row.id
+                            }
+                        }"
+                    >
+                        <div class="tw-underline tw-cursor-pointer">
                             {{ props.row.name }}
                         </div>
-                    </q-td>
+                    </router-link>
+                </template>
+
+                <template #avatar="props">
+                    <q-img
+                        v-if="props.row.avatar != 'default.png'"
+                        :src="`${baseImageURL}/${props.row.avatar}`"
+                        class="tw-w-40"
+                    />
+
+                    <span v-else>Not Set.</span>
                 </template>
 
                 <template #address="props">
@@ -183,7 +244,7 @@ onMounted(() => {
                                         :to="{
                                             name: 'employee-edit-page',
                                             params: {
-                                                id: '123'
+                                                id: props.row.id
                                             }
                                         }"
                                     >
@@ -198,7 +259,10 @@ onMounted(() => {
                                         </q-item-section>
                                     </q-item>
                                     <q-separator />
-                                    <q-item clickable>
+                                    <q-item
+                                        clickable
+                                        @click="openDeleteDialog(props.row.id)"
+                                    >
                                         <q-item-section
                                             class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
                                         >
@@ -218,4 +282,10 @@ onMounted(() => {
             </base-table>
         </template>
     </base-card>
+
+    <base-confirmation-dialog
+        v-model="confirmDialog"
+        action="delete"
+        @onAction="handleAction"
+    />
 </template>

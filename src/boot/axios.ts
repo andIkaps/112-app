@@ -38,6 +38,49 @@ api.interceptors.response.use(
             router.push({
                 name: 'login-page'
             })
+            window.location.reload()
+        } else if (error.response.status == 400) {
+            if (error.response.data.message) {
+                Notification(error.response.data.message, 'negative')
+            } else {
+                Notification('Action Failed!', 'negative')
+            }
+        } else if (error.response.status == 422) {
+            if (error.response.data.message) {
+                Notification(error.response.data.message, 'negative')
+            } else {
+                Notification('Action Failed!', 'negative')
+            }
+        } else if (error.response.status == 500) {
+            Notification('Action Failed!', 'negative')
+        }
+
+        return Promise.reject(error)
+    }
+)
+
+const form_data = axios.create({ baseURL: import.meta.env.VITE_BASE_URL })
+form_data.interceptors.request.use((config: any) => {
+    config.headers = {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+    }
+
+    return config
+})
+
+form_data.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response.status == 401) {
+            Notification('Your Session is expired', 'warning')
+            const router = useRouter()
+
+            localStorage.removeItem('token')
+            router.push({
+                name: 'login-page'
+            })
+            window.location.reload()
         } else if (error.response.status == 400) {
             if (error.response.data.message) {
                 Notification(error.response.data.message, 'negative')
@@ -70,4 +113,4 @@ export default boot(({ app }) => {
     //       so you can easily perform requests against your app's API
 })
 
-export { api }
+export { api, form_data }
