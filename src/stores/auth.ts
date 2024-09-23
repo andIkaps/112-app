@@ -34,6 +34,47 @@ export const useAuthStore = defineStore('auth', {
                     role: ''
                 }
             }
+        },
+        USER_MENUS(state) {
+            if (state.user?.roles) {
+                const menuMap: any = {}
+                const groupedMenus: any = []
+
+                // Step 1: Flatten the menus into a map for easy access
+                state.user?.roles.forEach((role) => {
+                    role.role.menus.forEach((menu) => {
+                        const { id, name, url, icon, ord, parent_id } =
+                            menu.menu
+                        menuMap[id] = {
+                            id,
+                            name,
+                            url,
+                            icon,
+                            ord,
+                            parent_id,
+                            childrens: [] // Initialize children's array
+                        }
+                    })
+                })
+
+                // Step 2: Build the hierarchical structure
+                Object.values(menuMap)?.forEach((menu: any) => {
+                    if (menu.parent_id === null) {
+                        // If it's a root menu, add it to the groupedMenus array
+                        groupedMenus.push(menu)
+                    } else {
+                        // Otherwise, find the parent and add the menu as a child
+                        const parentMenu = menuMap[menu.parent_id]
+                        if (parentMenu) {
+                            parentMenu.childrens.push(menu)
+                        }
+                    }
+                })
+
+                return groupedMenus
+            } else {
+                return []
+            }
         }
     },
     actions: {

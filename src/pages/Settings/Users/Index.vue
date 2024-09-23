@@ -98,6 +98,8 @@ const passwordStrength = computed(() => {
     return strength
 })
 const confirmDialog = ref(false)
+const roles = ref<any>([])
+const ticked = ref<any>([])
 
 // methods
 const fetchUsers = async () => {
@@ -119,6 +121,22 @@ const fetchUsers = async () => {
         tableLoading.value = false
         Loading.hide()
     }
+}
+
+const fetchRoles = async () => {
+    try {
+        const { data: response } = await api.get('/roles')
+
+        if (response.data) {
+            roles.value = response.data.map((item: any) => {
+                return {
+                    id: item.id,
+                    label: item.name,
+                    children: []
+                }
+            })
+        }
+    } catch (error) {}
 }
 
 const fetchEmployees = async () => {
@@ -151,9 +169,10 @@ const openDialog = (data: any) => {
 }
 
 const openRoleDialog = (data: any) => {
-    console.log(data);
-    
     if (data) {
+        userDetail.value = data
+
+        ticked.value = data.roles.map((item: any) => item.role_id)
     }
 
     roleDialog.value = true
@@ -166,6 +185,9 @@ const closeDialog = () => {
     form.username = ''
     form.password = ''
     form.employee_id = ''
+
+    roleDialog.value = false
+    ticked.value = []
 }
 
 const getIconName = (cond: any) => {
@@ -274,10 +296,36 @@ const onDeleteUser = async () => {
     }
 }
 
+const onAssignRoles = async () => {
+    if (ticked.value.length) {
+        try {
+            Loading.show({
+                message: 'Please wait...'
+            })
+
+            const { data: response } = await api.post('/users/assign-roles', {
+                user_id: userDetail.value?.id,
+                role_ids: ticked.value
+            })
+
+            if (response.data) {
+                Notification(response.message, 'positive')
+                fetchUsers()
+                closeDialog()
+            }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            Loading.hide()
+        }
+    }
+}
+
 // hooks
 onMounted(() => {
     fetchUsers()
     fetchEmployees()
+    fetchRoles()
 })
 </script>
 
@@ -550,131 +598,39 @@ onMounted(() => {
     </q-dialog>
 
     <q-dialog v-model="roleDialog" persistent position="right">
-        <q-card style="min-width: 500px">
-            <q-form @submit="onSubmitUser">
-                <q-card-section>
-                    <h1 class="tw-font-semibold tw-text-lg tw-mb-5">
-                        {{ isEdit ? 'Edit' : 'Create' }} Users
-                    </h1>
+        <q-card style="min-width: 900px">
+            <q-card-section class="tw-space-y-5">
+                <h1 class="tw-font-semibold tw-text-lg tw-mb-5">
+                    Assign Roles : {{ userDetail?.name }}
+                </h1>
 
-                    <section class="tw-space-y-5">
-                        <base-select
-                            align="top"
-                            label="Employee"
-                            :options="optEmployees"
-                            v-model="form.employee_id"
-                            emit-value
-                            map-options
-                            dense
-                            :required="true"
-                        />
+                <q-tree
+                    ref="tree"
+                    node-key="id"
+                    class="tw-w-full"
+                    color="secondary"
+                    v-model:ticked="ticked"
+                    :nodes="roles"
+                    tick-strategy="strict"
+                    :default-expand-all="true"
+                />
 
-                        <base-text
-                            label="Username"
-                            v-model="form.username"
-                            align="top"
-                            required
-                            dense
-                        />
-
-                        <base-password
-                            label="Password"
-                            v-model="form.password"
-                            align="top"
-                            :required="!isEdit"
-                            dense
-                        />
-
-                        <section
-                            class="tw-space-y-2 -tw-pt-10"
-                            v-if="form.password"
-                        >
-                            <h1 class="tw-text-xs tw-font-semibold">
-                                Create a password that:
-                            </h1>
-
-                            <div class="tw-text-xs tw-space-y-2">
-                                <p
-                                    class="tw-flex tw-items-center tw-gap-2"
-                                    :class="{
-                                        'tw-text-red': !passwordStrength.capital
-                                    }"
-                                >
-                                    <BaseIcon
-                                        :icon-name="
-                                            getIconName(
-                                                passwordStrength.capital
-                                            )
-                                        "
-                                        :size="12"
-                                    />
-                                    contains both lower (a-z) and upper case
-                                    letters (A-Z )
-                                </p>
-                                <p
-                                    class="tw-flex tw-items-center tw-gap-2"
-                                    :class="{
-                                        'tw-text-red': !passwordStrength.symbol
-                                    }"
-                                >
-                                    <BaseIcon
-                                        :icon-name="
-                                            getIconName(passwordStrength.symbol)
-                                        "
-                                        :size="12"
-                                    />
-                                    contains at least one special symbol.
-                                </p>
-                                <p
-                                    class="tw-flex tw-items-center tw-gap-2"
-                                    :class="{
-                                        'tw-text-red': !passwordStrength.num
-                                    }"
-                                >
-                                    <BaseIcon
-                                        :icon-name="
-                                            getIconName(passwordStrength.num)
-                                        "
-                                        :size="12"
-                                    />
-                                    contains at least one number (0-9).
-                                </p>
-                                <p
-                                    class="tw-flex tw-items-center tw-gap-2"
-                                    :class="{
-                                        'tw-text-red': !passwordStrength.min
-                                    }"
-                                >
-                                    <BaseIcon
-                                        :icon-name="
-                                            getIconName(passwordStrength.min)
-                                        "
-                                        :size="12"
-                                    />
-                                    contains at least 8 characters
-                                </p>
-                            </div>
-                        </section>
-                    </section>
-
-                    <div class="tw-mt-5 tw-flex tw-gap-5 tw-justify-center">
-                        <q-btn
-                            flat
-                            label="Cancel"
-                            color="negative"
-                            v-close-popup
-                            @click="closeDialog"
-                        />
-                        <q-btn
-                            unelevated
-                            type="submit"
-                            label="Submit"
-                            color="secondary"
-                            :disable="passwordStrength.total < 4 && !isEdit"
-                        />
-                    </div>
-                </q-card-section>
-            </q-form>
+                <div class="tw-mt-5 tw-flex tw-gap-5 tw-justify-center">
+                    <q-btn
+                        flat
+                        label="Cancel"
+                        color="negative"
+                        v-close-popup
+                        @click="closeDialog"
+                    />
+                    <q-btn
+                        unelevated
+                        @click="onAssignRoles"
+                        label="Submit"
+                        color="secondary"
+                    />
+                </div>
+            </q-card-section>
         </q-card>
     </q-dialog>
 

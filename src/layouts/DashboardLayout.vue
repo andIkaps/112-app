@@ -328,8 +328,8 @@ onUnmounted(() => {
                 </q-item>
 
                 <navigation
-                    v-for="menu in menus"
-                    :key="menu.Name"
+                    v-for="menu in authStore.USER_MENUS"
+                    :key="menu.name"
                     v-bind="menu"
                 />
             </q-list>
