@@ -1,7 +1,7 @@
 <script setup lang="ts">
 interface IProps {
     modelValue: boolean
-    action: 'delete' | 'confirm_form'
+    action: 'delete' | 'confirm_form' | 'check_data'
 }
 defineProps<IProps>()
 defineEmits(['update:modelValue', 'onAction'])
@@ -53,6 +53,27 @@ defineEmits(['update:modelValue', 'onAction'])
                             Are you sure you want to submit this form? <br />
                             Please review all the details carefully before
                             proceeding.
+                        </p>
+                    </div>
+                </template>
+
+                <template v-if="action == 'check_data'">
+                    <section class="tw-flex tw-justify-center tw-my-5">
+                        <base-icon
+                            icon-name="Warning2"
+                            size="35"
+                            class="tw-text-yellow-400"
+                        />
+                    </section>
+
+                    <div class="tw-text-center tw-space-y-3">
+                        <h1 class="tw-font-semibold tw-text-2xl">
+                            Information!
+                        </h1>
+                        <p class="tw-text-gray-500">
+                            We found data on your local device. Would you like
+                            to sync it? <br />
+                            Click "Yes" to proceed.
                         </p>
                     </div>
                 </template>

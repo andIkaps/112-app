@@ -6,6 +6,7 @@ import { api } from 'src/boot/axios'
 import { useRouter } from 'vue-router'
 import { Notification } from 'src/boot/notify'
 import { Loading } from 'quasar'
+import { watch } from 'fs'
 
 const router = useRouter()
 
@@ -56,6 +57,7 @@ const form = reactive<FormSchema>({
 })
 const isSubmitted = ref<boolean>(false)
 const confirmDialog = ref(false)
+const confirmCheckDialog = ref(false)
 
 // methods
 const onSubmitPeriod = () => {
@@ -79,6 +81,8 @@ const onSubmitPeriod = () => {
     }
 
     isSubmitted.value = true
+
+    localStorage.setItem('temp_call_reports', JSON.stringify(form))
 }
 
 const onSubmitCallReports = async () => {
@@ -116,14 +120,39 @@ const handleAction = (val: boolean) => {
     }
 }
 
+const handleCheckLocalData = (val: boolean) => {
+    confirmCheckDialog.value = false
+
+    if (val) {
+        isSubmitted.value = true
+        const temp = JSON.parse(
+            localStorage.getItem('temp_call_reports') ?? ''
+        ) as FormSchema
+
+        form.day = temp.day
+        form.month_period = temp.month_period
+        form.year = temp.year
+        form.detail = temp.detail
+    }
+}
+
 const onUpdateMonth = () => {
     isSubmitted.value = false
     form.detail = []
 }
 
+const onValueChange = () => {
+    console.log('asda')
+    localStorage.setItem('temp_call_reports', JSON.stringify(form))
+}
+
 // hooks
 onMounted(() => {
     form.year = moment().format('YYYY')
+
+    if (localStorage.getItem('temp_call_reports')) {
+        confirmCheckDialog.value = true
+    }
 })
 </script>
 
@@ -193,26 +222,31 @@ onMounted(() => {
                             <base-text
                                 align="top"
                                 v-model="item.disconnect_call"
+                                @update:model-value="(val: any) => onValueChange()"
                                 dense
                             />
                             <base-text
                                 align="top"
                                 v-model="item.prank_call"
+                                @update:model-value="(val: any) => onValueChange()"
                                 dense
                             />
                             <base-text
                                 align="top"
                                 v-model="item.education_call"
+                                @update:model-value="(val: any) => onValueChange()"
                                 dense
                             />
                             <base-text
                                 align="top"
                                 v-model="item.emergency_call"
+                                @update:model-value="(val: any) => onValueChange()"
                                 dense
                             />
                             <base-text
                                 align="top"
                                 v-model="item.abandoned"
+                                @update:model-value="(val: any) => onValueChange()"
                                 dense
                             />
                         </div>
@@ -247,5 +281,11 @@ onMounted(() => {
         v-model="confirmDialog"
         action="confirm_form"
         @onAction="handleAction"
+    />
+
+    <base-confirmation-dialog
+        v-model="confirmCheckDialog"
+        action="check_data"
+        @onAction="handleCheckLocalData"
     />
 </template>
