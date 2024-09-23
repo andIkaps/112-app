@@ -1,7 +1,5 @@
 import { boot } from 'quasar/wrappers'
 import axios, { AxiosInstance } from 'axios'
-import { Notify } from 'quasar'
-import { useRouter } from 'vue-router'
 import { Notification } from './notify'
 
 declare module '@vue/runtime-core' {
@@ -32,12 +30,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response.status == 401) {
             Notification('Your Session is expired', 'warning')
-            const router = useRouter()
-
             localStorage.removeItem('token')
-            router.push({
-                name: 'login-page'
-            })
             window.location.reload()
         } else if (error.response.status == 400) {
             if (error.response.data.message) {
@@ -74,12 +67,8 @@ form_data.interceptors.response.use(
     (error) => {
         if (error.response.status == 401) {
             Notification('Your Session is expired', 'warning')
-            const router = useRouter()
 
             localStorage.removeItem('token')
-            router.push({
-                name: 'login-page'
-            })
             window.location.reload()
         } else if (error.response.status == 400) {
             if (error.response.data.message) {

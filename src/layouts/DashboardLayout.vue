@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import Navigation, { NavigationProps } from 'components/common/Navigation.vue'
-import { useMeta } from 'quasar'
+import { Loading, useMeta } from 'quasar'
 import logo_image from 'assets/logo_112.png'
 import { useAuthStore } from 'src/stores/auth'
 import female_avatar from 'assets/female.jpg'
 import male_avatar from 'assets/male.jpg'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
+import { api } from 'src/boot/axios'
 
 // common
 defineOptions({
@@ -17,10 +18,15 @@ useMeta({
     title: 'Laporan 112'
 })
 const router = useRouter()
-
-// data
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
+authStore.$subscribe((mutation, state) => {
+    if (state.isTokenExpired) {
+        reLogin.value = true
+    }
+})
+
+// data
 const menus: NavigationProps[] = [
     {
         Name: 'Dashboard',
@@ -145,6 +151,22 @@ watch(
         deep: true
     }
 )
+const reLogin = ref<boolean>(false)
+watch(reLogin, () => {
+    if (reLogin.value) {
+        intervalTimeout.value = setInterval(() => {
+            timeout.value -= 1
+        }, 1000)
+    }
+})
+const timeout = ref<number>(59)
+watch(timeout, () => {
+    if (timeout.value < 1 && reLogin.value) {
+        onLogout()
+    }
+})
+const intervalTimeout = ref<any>()
+const password = ref<string>('')
 
 // methods
 const toggleLeftDrawer = () => {
@@ -159,11 +181,42 @@ const onLogout = () => {
     })
 }
 
+const onExtendSessions = async () => {
+    Loading.show({
+        message: 'Please wait...'
+    })
+
+    try {
+        const { data: response } = await api.post('/auth/refresh-token')
+
+        if (response.data) {
+            authStore.token = response.data.token
+            localStorage.setItem('token', response.data.token)
+            authStore.checkTokenExpiration()
+            authStore.fetchUserData()
+            reLogin.value = false
+            timeout.value = 59
+
+            clearInterval(intervalTimeout.value)
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
 // hooks
 onMounted(() => {
     if (!authStore.user.id) {
         authStore.fetchUserData()
     }
+
+    authStore.startTokenExpirationCheck()
+})
+
+onUnmounted(() => {
+    authStore.stopTokenExpirationCheck()
 })
 </script>
 
@@ -288,4 +341,50 @@ onMounted(() => {
             </main>
         </q-page-container>
     </q-layout>
+
+    <q-dialog v-model="reLogin" persistent>
+        <q-card class="tw-py-8 tw-px-16 !tw-rounded-xl">
+            <q-card-section class="tw-space-y-10">
+                <section class="tw-space-y-3">
+                    <div
+                        class="tw-flex tw-justify-center tw-items-center tw-flex-col tw-gap-5"
+                    >
+                        <base-icon
+                            icon-name="Warning2"
+                            class="tw-w-10 tw-h-10 tw-text-primary"
+                        />
+                        <h1 class="tw-font-semibold tw-text-lg tw-text-primary">
+                            Session Expiry Warning!
+                        </h1>
+                    </div>
+                    <p class="tw-text-gray-500 tw-text-center">
+                        Your session will expire in {{ timeout }} seconds. Do
+                        you want to extend the session or logout?
+                    </p>
+                </section>
+
+                <q-form @submit="onExtendSessions">
+                    <div
+                        class="tw-flex ttw-justify-center tw-items-center tw-gap-3"
+                    >
+                        <q-btn
+                            label="Logout"
+                            color="negative"
+                            outline
+                            class="tw-w-full"
+                            v-close-popup
+                            @click="onLogout"
+                        />
+                        <q-btn
+                            unelevated
+                            label="Extend Session"
+                            type="submit"
+                            color="secondary"
+                            class="tw-w-full"
+                        />
+                    </div>
+                </q-form>
+            </q-card-section>
+        </q-card>
+    </q-dialog>
 </template>
