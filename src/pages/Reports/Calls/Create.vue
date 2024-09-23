@@ -104,6 +104,7 @@ const onSubmitCallReports = async () => {
             router.push({
                 name: 'call-report-page'
             })
+            localStorage.removeItem('temp_call_reports')
         }
     } catch (error) {
         console.log(error)
@@ -142,7 +143,6 @@ const onUpdateMonth = () => {
 }
 
 const onValueChange = () => {
-    console.log('asda')
     localStorage.setItem('temp_call_reports', JSON.stringify(form))
 }
 

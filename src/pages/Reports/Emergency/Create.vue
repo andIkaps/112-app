@@ -5,6 +5,7 @@ import moment from 'moment'
 import { Notify } from 'quasar'
 import { api } from 'src/boot/axios'
 import { Notification } from 'src/boot/notify'
+import { useRouter } from 'vue-router'
 
 type FormSchema = {
     month_period: {
@@ -29,6 +30,7 @@ type FormSchema = {
         gawat_darurat_lain: number
     }[]
 }
+const router = useRouter()
 
 // data
 const breadcrumbs = ref<IBreadcrumbs[]>([
@@ -61,6 +63,7 @@ const form = reactive<FormSchema>({
 const isSubmitted = ref<boolean>(false)
 const optDistrict = ref<{ label: string; value: number }[]>([])
 const confirmDialog = ref(false)
+const confirmCheckDialog = ref(false)
 
 // methods
 const onSubmitPeriod = () => {
@@ -69,6 +72,8 @@ const onSubmitPeriod = () => {
         .format('D')
 
     isSubmitted.value = true
+
+    localStorage.setItem('temp_emergency_reports', JSON.stringify(form))
 }
 
 const onSubmitEmergencyReport = async () => {
@@ -81,6 +86,10 @@ const onSubmitEmergencyReport = async () => {
 
         if (response.data) {
             Notification(response.message, 'positive')
+
+            router.push({
+                name: 'emergency-report-page'
+            })
         }
     } catch (error) {
         console.log(error)
@@ -92,6 +101,22 @@ const handleAction = (val: boolean) => {
 
     if (val) {
         onSubmitEmergencyReport()
+    }
+}
+
+const handleCheckLocalData = (val: boolean) => {
+    confirmCheckDialog.value = false
+
+    if (val) {
+        isSubmitted.value = true
+        const temp = JSON.parse(
+            localStorage.getItem('temp_emergency_reports') ?? ''
+        ) as FormSchema
+
+        form.day = temp.day
+        form.month_period = temp.month_period
+        form.year = temp.year
+        form.detail = temp.detail
     }
 }
 
@@ -127,11 +152,19 @@ const fetchDistrict = async () => {
     } catch (error) {}
 }
 
+const onValueChange = () => {
+    localStorage.setItem('temp_emergency_reports', JSON.stringify(form))
+}
+
 // hooks
 onMounted(() => {
     form.year = moment().format('YYYY')
 
     fetchDistrict()
+
+    if (localStorage.getItem('temp_emergency_reports')) {
+        confirmCheckDialog.value = true
+    }
 })
 </script>
 
@@ -191,66 +224,77 @@ onMounted(() => {
                             align="top"
                             label="Kecelakaan"
                             v-model="item.kecelakaan"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Kebakaran"
                             v-model="item.kebakaran"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Ambulan Gratis & Medis (AGD)"
                             v-model="item.ambulan_gratis"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="PLN"
                             v-model="item.pln"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Mobil jenazah"
                             v-model="item.mobil_jenazah"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Penanganan Pada Hewan"
                             v-model="item.penanganan_hewan"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Keamanan dan Ketertiban"
                             v-model="item.keamanan"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Kriminal"
                             v-model="item.kriminal"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Bencana Alam"
                             v-model="item.bencana_alam"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="KDRT"
                             v-model="item.kdrt"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                         <base-text
                             align="top"
                             label="Gawat Darurat Lain"
                             v-model="item.gawat_darurat_lain"
+                            @update:model-value="(val:any) => onValueChange()"
                             dense
                         />
                     </section>
@@ -285,5 +329,11 @@ onMounted(() => {
         v-model="confirmDialog"
         action="confirm_form"
         @onAction="handleAction"
+    />
+
+    <base-confirmation-dialog
+        v-model="confirmCheckDialog"
+        action="check_data"
+        @onAction="handleCheckLocalData"
     />
 </template>
