@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import moment from 'moment'
 import { QTableColumn } from 'quasar'
+import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-// Data
+// common
+const route = useRoute()
+
+// data
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -27,89 +32,79 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
         icon: ''
     }
 ])
-const tableRows = ref([
-    {
-        employee_name: 'Aldimas Danu Saputra',
-        kinerja: {
-            total: 84.3,
-            tenang: '85,0',
-            cepat: ' 83,0',
-            dispatch: ' 85,0',
-            sosialisasi: ''
-        },
-        aktif: {
-            total: '88.0',
-            greating_opening: ' 90,0',
-            greating_closing: ' 90,0',
-            aktivitas: ' 89,0'
-        },
-        loyal: '85.0',
-        disiplin: {
-            total: '86.5',
-            telat: 79.5,
-            kebersihan: 89.1,
-            take_break: 90.1
-        },
-        total_nilai: '85.8',
-        grade: 'A'
-    },
-    {
-        employee_name: 'Anita ',
-        kinerja: {
-            total: 84.3,
-            tenang: '87,0',
-            cepat: '83,0',
-            dispatch: '85,0',
-            sosialisasi: ''
-        },
-        aktif: {
-            total: '88.0',
-            greating_opening: ' 90,0',
-            greating_closing: ' 90,0',
-            aktivitas: ' 89,0'
-        },
-        loyal: '85.0',
-        disiplin: {
-            total: '86.5',
-            telat: 79.5,
-            kebersihan: 89.1,
-            take_break: 90.1
-        },
-        total_nilai: '85.8',
-        grade: 'A'
-    },
-    {
-        employee_name: 'Dede Nuryanti',
-        kinerja: {
-            total: 84.3,
-            tenang: '87,0',
-            cepat: '83,0',
-            dispatch: '85,0',
-            sosialisasi: ''
-        },
-        aktif: {
-            total: '88.0',
-            greating_opening: ' 90,0',
-            greating_closing: ' 90,0',
-            aktivitas: ' 89,0'
-        },
-        loyal: '85.0',
-        disiplin: {
-            total: '86.5',
-            telat: 79.5,
-            kebersihan: 89.1,
-            take_break: 90.1
-        },
-        total_nilai: '85.8',
-        grade: 'A'
+const tableRows = ref<any>([])
+
+// methods
+const fetchEmployeeKPI = async () => {
+    try {
+        const params = new URLSearchParams()
+        params.append('period', String(route.query.period))
+        params.append('year', String(route.query.year))
+
+        const { data: response } = await api.get('/employees-kpi', { params })
+
+        if (response.data) {
+            tableRows.value = response.data
+        }
+    } catch (error) {
+        console.log(error)
     }
-])
+}
+
+const countAverage = (num: number[]) => {
+    const count = num.length
+    const sum = num.reduce((acc, num) => acc + num, 0)
+
+    return (sum / count).toFixed(1)
+}
+
+const calculateTotalNilai = (row: any) => {
+    const kinerja: any = countAverage([
+        row.calm,
+        row.fast,
+        row.dispatch,
+        row.sosialization
+    ])
+    const aktif: any = countAverage([
+        row.greating_opening,
+        row.greating_closing,
+        row.activity
+    ])
+    const loyal: any = row.loyal
+    const disiplin: any = countAverage([row.late, row.clean, row.take_break])
+
+    return kinerja * 0.4 + aktif * 0.3 + loyal * 0.1 + disiplin * 0.2
+}
+
+const calculateGrade = (row: any) => {
+    const nilai = calculateTotalNilai(row)
+    let grade
+
+    if (nilai <= 60) {
+        grade = 'D'
+    } else if (nilai <= 70) {
+        grade = 'C'
+    } else if (nilai <= 80) {
+        grade = 'B'
+    } else if (nilai <= 100) {
+        grade = 'A'
+    }
+
+    return grade
+}
+
+// hooks
+onMounted(() => {
+    fetchEmployeeKPI()
+})
 </script>
 
 <template>
     <base-title title="Employees KPI" :crumbs="breadcrumbs" />
 
-    <base-card title="Lists Employee KPI from Januari 2024">
+    <base-card
+        :title="`Lists Employee KPI from ${$route.query.period} ${$route.query.year}`"
+    >
         <template #content>
             <q-markup-table flat bordered>
                 <thead>
@@ -210,47 +205,47 @@ const tableRows = ref([
                     <template v-for="(row, i) in tableRows" :key="i">
                         <tr>
                             <td rowspan="3" class="!tw-border-r">
-                                {{ row.employee_name }}
+                                {{ row.employee?.name }}
                             </td>
                         </tr>
                         <tr class="!tw-text-center">
                             <td class="!tw-border-r">
-                                {{ row.kinerja.tenang }}
+                                {{ row.calm }}
                             </td>
                             <td class="!tw-border-r">
-                                {{ row.kinerja.cepat }}
+                                {{ row.fast }}
                             </td>
                             <td class="!tw-border-r">
-                                {{ row.kinerja.dispatch }}
+                                {{ row.dispatch }}
                             </td>
                             <td class="!tw-border-r">
-                                {{ row.kinerja.sosialisasi || '-' }}
+                                {{ row.sosialization || '-' }}
                             </td>
                             <td class="!tw-border-r">
-                                {{ row.aktif.greating_opening }}
+                                {{ row.greating_opening }}
                             </td>
                             <td class="!tw-border-r">
-                                {{ row.aktif.greating_closing }}
+                                {{ row.greating_closing }}
                             </td>
                             <td class="!tw-border-r">
-                                {{ row.aktif.aktivitas }}
+                                {{ row.activity }}
                             </td>
                             <td class="!tw-border-r">{{ row.loyal }}</td>
                             <td class="!tw-border-r">
-                                {{ row.disiplin.telat }}
+                                {{ row.late }}
                             </td>
                             <td class="!tw-border-r">
-                                {{ row.disiplin.kebersihan }}
+                                {{ row.clean }}
                             </td>
-                            <td>{{ row.disiplin.take_break }}</td>
+                            <td>{{ row.take_break }}</td>
                             <td rowspan="2" class="!tw-border-l">
-                                {{ row.total_nilai }}
+                                {{ calculateTotalNilai(row) }}
                             </td>
                             <td rowspan="2" class="!tw-border-l">
                                 <q-badge
                                     color="yellow-4"
                                     text-color="black"
-                                    :label="row.grade"
+                                    :label="calculateGrade(row)"
                                 />
                             </td>
                         </tr>
@@ -259,21 +254,39 @@ const tableRows = ref([
                                 colspan="4"
                                 class="tw-text-center tw-font-bold !tw-border-r"
                             >
-                                {{ row.kinerja.total }}
+                                {{
+                                    countAverage([
+                                        row.calm,
+                                        row.fast,
+                                        row.dispatch
+                                    ])
+                                }}
                             </td>
                             <td
                                 colspan="3"
                                 class="tw-text-center tw-font-bold !tw-border-r"
                             >
-                                {{ row.aktif.total }}
+                                {{
+                                    countAverage([
+                                        row.greating_opening,
+                                        row.greating_closing,
+                                        row.activity
+                                    ])
+                                }}
                             </td>
                             <td
                                 class="tw-text-center tw-font-bold !tw-border-r"
                             >
-                                {{ row.loyal }}
+                                {{ row.loyal.toFixed(1) }}
                             </td>
                             <td colspan="3" class="tw-text-center tw-font-bold">
-                                {{ row.disiplin.total }}
+                                {{
+                                    countAverage([
+                                        row.late,
+                                        row.clean,
+                                        row.take_break
+                                    ])
+                                }}
                             </td>
                         </tr>
                     </template>

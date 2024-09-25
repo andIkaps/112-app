@@ -115,7 +115,7 @@ const routes: RouteRecordRaw[] = [
                 name: 'employee-create-kpi-page'
             },
             {
-                path: '/master-data/employees/kpi/:id/detail',
+                path: '/master-data/employees/kpi/detail',
                 component: () =>
                     import('pages/MasterData/Employee/KPI/Detail.vue'),
                 name: 'employee-kpi-detail-page'

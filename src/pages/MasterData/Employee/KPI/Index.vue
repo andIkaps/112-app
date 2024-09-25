@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { QTableColumn } from 'quasar'
+import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
-// Data
+// data
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -23,40 +24,45 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
 ])
 const tableColumns: QTableColumn[] = [
     {
-        name: 'name',
+        name: 'period',
         label: 'Period',
         align: 'left',
-        field: (row: any) => row.name
+        field: (row: any) => `${row.period} ${row.year}`
     },
     {
         name: 'employee_name',
         label: 'Employee Name',
         align: 'left',
-        field: (row: any) => row.employee_name
+        field: (row: any) => row.employee?.name || '-'
     },
     {
         name: 'kinerja',
         label: 'Kinerja (40%)',
         align: 'left',
-        field: (row: any) => row.kinerja
+        field: (row: any) => countAverage([row.calm, row.fast, row.dispatch])
     },
     {
         name: 'aktif',
         label: 'Aktif (30%)',
         align: 'left',
-        field: (row: any) => row.aktif
+        field: (row: any) =>
+            countAverage([
+                row.greating_opening,
+                row.greating_closing,
+                row.activity
+            ])
     },
     {
         name: 'loyal',
         label: 'Loyal (10%)',
         align: 'left',
-        field: (row: any) => row.loyal
+        field: (row: any) => parseFloat(row.loyal).toFixed(1)
     },
     {
         name: 'disiplin',
         label: 'Disiplin (20%)',
         align: 'left',
-        field: (row: any) => row.disiplin
+        field: (row: any) => countAverage([row.late, row.clean, row.take_break])
     },
     {
         name: 'total_nilai',
@@ -89,7 +95,68 @@ const tableRows = ref([
         grade: 'A'
     }
 ])
+const tableLoading = ref(false)
 const searchKeyword = ref<string>('')
+
+// methods
+const fetchEmployeeKPI = async () => {
+    try {
+        const { data: response } = await api.get('/employees-kpi')
+
+        if (response.data) {
+            tableRows.value = response.data
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const countAverage = (num: number[]) => {
+    const count = num.length
+    const sum = num.reduce((acc, num) => acc + num, 0)
+
+    return (sum / count).toFixed(1)
+}
+
+const calculateTotalNilai = (row: any) => {
+    const kinerja: any = countAverage([
+        row.calm,
+        row.fast,
+        row.dispatch,
+        row.sosialization
+    ])
+    const aktif: any = countAverage([
+        row.greating_opening,
+        row.greating_closing,
+        row.activity
+    ])
+    const loyal: any = row.loyal
+    const disiplin: any = countAverage([row.late, row.clean, row.take_break])
+
+    return kinerja * 0.4 + aktif * 0.3 + loyal * 0.1 + disiplin * 0.2
+}
+
+const calculateGrade = (row: any) => {
+    const nilai = calculateTotalNilai(row)
+    let grade
+
+    if (nilai <= 60) {
+        grade = 'D'
+    } else if (nilai <= 70) {
+        grade = 'C'
+    } else if (nilai <= 80) {
+        grade = 'B'
+    } else if (nilai <= 100) {
+        grade = 'A'
+    }
+
+    return grade
+}
+
+// hooks
+onMounted(() => {
+    fetchEmployeeKPI()
+})
 </script>
 
 <template>
@@ -142,96 +209,84 @@ const searchKeyword = ref<string>('')
             <base-table
                 :columns="tableColumns"
                 :rows="tableRows"
+                :loading="tableLoading"
                 row-key="name"
             >
-                <template #name="props">
-                    <q-td>
-                        <router-link
-                            :to="{
-                                name: 'employee-kpi-detail-page',
-                                params: {
-                                    id: 123
-                                }
-                            }"
+                <template #period="props">
+                    <router-link
+                        :to="{
+                            name: 'employee-kpi-detail-page',
+                            query: {
+                                period: props.row.period,
+                                year: props.row.year
+                            }
+                        }"
+                    >
+                        <div
+                            class="tw-underline tw-cursor-pointer tw-text-teal-600"
                         >
-                            <div
-                                class="tw-underline tw-cursor-pointer tw-text-teal-600"
-                            >
-                                {{ props.row.name }}
-                            </div>
-                        </router-link>
-                    </q-td>
+                            {{ props.row.period }} {{ props.row.year }}
+                        </div>
+                    </router-link>
                 </template>
 
-                <template #address="props">
-                    <q-td>
-                        <div class="tw-w-48 tw-text-wrap !tw-truncate">
-                            {{ props.row.address }}
-
-                            <q-tooltip
-                                v-if="props.row.address.length >= 40"
-                                class="!tw-w-56"
-                            >
-                                {{ props.row.address }}
-                            </q-tooltip>
-                        </div>
-                    </q-td>
+                <template #total_nilai="props">
+                    {{ calculateTotalNilai(props.row) }}
                 </template>
 
                 <template #grade="props">
-                    <q-td>
-                        <q-badge :label="props.row.grade" />
-                    </q-td>
+                    <q-badge
+                        color="accent"
+                        :label="calculateGrade(props.row)"
+                    />
                 </template>
 
                 <template #action="props">
-                    <q-td>
-                        <q-btn flat no-caps unelevated color="secondary">
-                            <base-icon icon-name="More" size="16" />
+                    <q-btn flat no-caps unelevated color="secondary">
+                        <base-icon icon-name="More" size="16" />
 
-                            <q-menu
-                                anchor="bottom end"
-                                self="top end"
-                                class="tw-shadow-lg tw-shadow-gray-50"
-                            >
-                                <q-list style="min-width: 100px">
-                                    <q-item
-                                        clickable
-                                        :to="{
-                                            name: 'employee-edit-page',
-                                            params: {
-                                                id: '123'
-                                            }
-                                        }"
-                                        class="tw-hidden"
+                        <q-menu
+                            anchor="bottom end"
+                            self="top end"
+                            class="tw-shadow-lg tw-shadow-gray-50"
+                        >
+                            <q-list style="min-width: 100px">
+                                <q-item
+                                    clickable
+                                    :to="{
+                                        name: 'employee-edit-page',
+                                        params: {
+                                            id: '123'
+                                        }
+                                    }"
+                                    class="tw-hidden"
+                                >
+                                    <q-item-section
+                                        class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
                                     >
-                                        <q-item-section
-                                            class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
-                                        >
-                                            <base-icon
-                                                icon-name="Edit"
-                                                class="text-warning"
-                                            />
-                                            <span>Edit</span>
-                                        </q-item-section>
-                                    </q-item>
-                                    <q-separator />
-                                    <q-item clickable>
-                                        <q-item-section
-                                            class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
-                                        >
-                                            <base-icon
-                                                icon-name="Trash"
-                                                class="text-negative"
-                                            />
+                                        <base-icon
+                                            icon-name="Edit"
+                                            class="text-warning"
+                                        />
+                                        <span>Edit</span>
+                                    </q-item-section>
+                                </q-item>
+                                <q-separator />
+                                <q-item clickable>
+                                    <q-item-section
+                                        class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
+                                    >
+                                        <base-icon
+                                            icon-name="Trash"
+                                            class="text-negative"
+                                        />
 
-                                            <span>Delete</span>
-                                        </q-item-section>
-                                    </q-item>
-                                </q-list>
-                            </q-menu>
-                        </q-btn>
-                    </q-td>
+                                        <span>Delete</span>
+                                    </q-item-section>
+                                </q-item>
+                            </q-list>
+                        </q-menu>
+                    </q-btn>
                 </template>
             </base-table>
         </template>
