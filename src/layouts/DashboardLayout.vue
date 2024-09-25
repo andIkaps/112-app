@@ -32,7 +32,6 @@ const userAvatar = ref(female_avatar)
 watch(
     user,
     () => {
-        console.log('asdkaskld')
         if (user.value.employee?.avatar == 'default.png') {
             if (user.value.employee.gender == 'male') {
                 userAvatar.value = male_avatar
@@ -40,10 +39,10 @@ watch(
                 userAvatar.value = female_avatar
             }
         } else {
-            userAvatar.value = user.value.employee?.avatar
+            userAvatar.value = `${import.meta.env.VITE_BASE_IMAGE_URL}/${
+                user.value.employee?.avatar
+            }`
         }
-
-        console.log(userAvatar.value)
     },
     {
         deep: true

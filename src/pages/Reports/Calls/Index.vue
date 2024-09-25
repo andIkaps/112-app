@@ -3,7 +3,7 @@ import { Loading, QTableColumn } from 'quasar'
 import { api } from 'src/boot/axios'
 import { Notification } from 'src/boot/notify'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 // data
 const confirmDialog = ref(false)
@@ -53,6 +53,23 @@ const tableColumns: QTableColumn[] = [
     }
 ]
 const tableRows = ref([])
+const filteredTableRows = computed(() => {
+    if (searchKeyword.value) {
+        return tableRows.value.filter((item: any) => {
+            const concatStr = `${item.month_period} ${item.year}`
+            console.log(concatStr)
+            if (
+                concatStr
+                    .toLowerCase()
+                    .includes(searchKeyword.value.toLowerCase())
+            ) {
+                return item
+            }
+        })
+    } else {
+        return tableRows.value
+    }
+})
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -164,6 +181,7 @@ onMounted(() => {
                 filled
                 v-model="searchKeyword"
                 type="text"
+                color="secondary"
                 label="Search"
                 dense
             >
@@ -176,7 +194,7 @@ onMounted(() => {
         <template #content>
             <base-table
                 :columns="tableColumns"
-                :rows="tableRows"
+                :rows="filteredTableRows"
                 :loading="tableLoading"
                 row-key="name"
             >

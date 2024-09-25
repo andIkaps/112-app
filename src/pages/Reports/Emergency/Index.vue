@@ -93,6 +93,21 @@ const tableColumns: QTableColumn[] = [
     }
 ]
 const tableRows = ref([])
+const filteredTableRows = computed(() => {
+    if (searchKeyword.value) {
+        return tableRows.value.filter((item: any) => {
+            if (
+                item.district?.name
+                    .toLowerCase()
+                    .includes(searchKeyword.value.toLowerCase())
+            ) {
+                return item
+            }
+        })
+    } else {
+        return tableRows.value
+    }
+})
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -162,7 +177,8 @@ onMounted(() => {
                 filled
                 v-model="searchKeyword"
                 type="text"
-                label="Search"
+                label="Search District"
+                color="secondary"
                 dense
             >
                 <template #prepend>
@@ -174,16 +190,22 @@ onMounted(() => {
         <template #content>
             <base-table
                 :columns="tableColumns"
-                :rows="tableRows"
+                :rows="filteredTableRows"
                 row-key="name"
             >
                 <template #period="props">
                     <q-td>
-                        <div
-                            class="tw-underline tw-cursor-pointer tw-text-teal-600"
+                        <router-link
+                            :to="{
+                                name: 'emergency-report-edit-page',
+                                params: {
+                                    id: props.row.id
+                                }
+                            }"
+                            class="tw-underline tw-cursor-pointer"
                         >
                             {{ props.row.period }} {{ props.row.year }}
-                        </div>
+                        </router-link>
                     </q-td>
                 </template>
 
@@ -203,7 +225,7 @@ onMounted(() => {
                                         :to="{
                                             name: 'emergency-report-edit-page',
                                             params: {
-                                                id: '123'
+                                                id: props.row.id
                                             }
                                         }"
                                     >
