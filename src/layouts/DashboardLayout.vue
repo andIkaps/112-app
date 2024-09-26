@@ -9,6 +9,7 @@ import male_avatar from 'assets/male.jpg'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { api } from 'src/boot/axios'
+import header_112_image from 'assets/header_112.jpg'
 
 // common
 defineOptions({
@@ -122,12 +123,16 @@ onUnmounted(() => {
         <q-header reveal class="tw-py-1.5 tw-text-gray-800 tw-bg-[#F4F5F6]">
             <q-toolbar class="tw-px-5 tw-justify-between">
                 <div class="tw-flex tw-items-center tw-gap-3">
-                    <base-icon
-                        icon-name="HambergerMenu"
-                        :size="20"
-                        @click="toggleLeftDrawer"
-                        class="tw-cursor-pointer"
-                    />
+                    <div>
+                        <base-icon
+                            icon-name="HambergerMenu"
+                            :size="20"
+                            @click="toggleLeftDrawer"
+                            class="tw-cursor-pointer"
+                        />
+                    </div>
+
+                    <q-img :src="header_112_image" class="tw-w-96" />
                 </div>
 
                 <div class="tw-flex tw-items-center tw-gap-3">

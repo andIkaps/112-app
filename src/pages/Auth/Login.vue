@@ -5,6 +5,16 @@ import logo_image from 'assets/logo_112.png'
 import { Autoplay } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { useRouter } from 'vue-router'
+import logo_tangerang from 'assets/logo_tangerang.png'
+import ambulance_gratis from 'assets/ambulance_gratis.png'
+import kdrt from 'assets/kdrt.png'
+import kebakaran from 'assets/kebakaran.png'
+import kecelakaan from 'assets/kecelakaan.png'
+import ketertiban from 'assets/ketertiban.png'
+import kriminal from 'assets/kriminal.png'
+import mobil_jenazah from 'assets/mobil_jenazah.png'
+import penanganan_hewan from 'assets/penanganan_hewan.png'
+import pln from 'assets/pln.png'
 
 // Import Swiper styles
 import { Loading, Notify, useMeta } from 'quasar'
@@ -25,6 +35,44 @@ const form = ref<{ username: string; password: string }>({
     username: '',
     password: ''
 })
+const swipers = ref([
+    {
+        label: 'Ambulance Gratis',
+        image: ambulance_gratis
+    },
+    {
+        label: 'Kdrt',
+        image: kdrt
+    },
+    {
+        label: 'Kebakaran',
+        image: kebakaran
+    },
+    {
+        label: 'Kecelakaan',
+        image: kecelakaan
+    },
+    {
+        label: 'Ketertiban',
+        image: ketertiban
+    },
+    {
+        label: 'Kriminal',
+        image: kriminal
+    },
+    {
+        label: 'Mobil Jenazah',
+        image: mobil_jenazah
+    },
+    {
+        label: 'Penanganan Hewan',
+        image: penanganan_hewan
+    },
+    {
+        label: 'Pln',
+        image: pln
+    }
+])
 
 // methods
 const onLogin = async () => {
@@ -63,7 +111,10 @@ const onLogin = async () => {
 <template>
     <section class="tw-grid tw-grid-cols-2 tw-min-h-screen">
         <div class="tw-h-full tw-p-10 tw-flex tw-flex-col tw-justify-between">
-            <q-img :src="logo_image" class="tw-w-14" />
+            <div>
+                <q-img :src="logo_tangerang" class="tw-w-20" />
+                <q-img :src="logo_image" class="tw-w-14" />
+            </div>
 
             <div>
                 <h1 class="tw-text-2xl tw-font-semibold tw-text-secondary">
@@ -123,19 +174,20 @@ const onLogin = async () => {
                             disableOnInteraction: false
                         }"
                         :slides-per-view="3"
-                        :spaceBetween="60"
+                        :spaceBetween="160"
                         :centered-slides="false"
                     >
-                        <template v-for="i in 5">
+                        <template v-for="item in swipers">
                             <swiper-slide>
-                                <q-card
-                                    class="tw-min-w-[14rem] tw-min-h-[14rem] slide-card"
-                                >
+                                <q-card class="slide-card tw-max-w-sm">
                                     <q-card-section>
-                                        <div class="text-h6">HEHE</div>
-                                        <div class="text-subtitle2">
-                                            by John Doe
+                                        <div class="text-h6 tw-max-w-sm">
+                                            {{ item.label }}
                                         </div>
+                                        <q-img
+                                            :src="item.image"
+                                            class="tw-w-32"
+                                        />
                                     </q-card-section>
                                 </q-card>
                             </swiper-slide>
