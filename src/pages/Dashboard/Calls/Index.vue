@@ -21,6 +21,7 @@ type CallData = {
 
 // data
 const date = ref<string>(moment().format('YYYY-MM-DD'))
+const dateRange = ref<any>({})
 watch(date, () => {
     fetchDashboard()
 })
@@ -129,7 +130,9 @@ onMounted(() => {
 </script>
 
 <template>
-    <base-title title="Dashboard Panggilan Harian" />
+    <base-title title="Dashboard Panggilan Harian">
+        <base-filter-date-range v-model="dateRange" />
+    </base-title>
 
     <base-card title="Filter">
         <template #content>

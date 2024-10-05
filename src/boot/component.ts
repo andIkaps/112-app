@@ -11,6 +11,7 @@ import BaseSelect from 'components/form/BaseSelect.vue'
 import VueApexCharts from 'vue3-apexcharts'
 import BasePassword from 'components/form/BasePassword.vue'
 import BaseConfirmationDialog from 'components/common/BaseConfirmationDialog.vue'
+import BaseFilterDateRange from 'components/common/BaseFilterDateRange.vue'
 
 export default boot(async ({ app }) => {
     // Common
@@ -19,6 +20,7 @@ export default boot(async ({ app }) => {
     app.component('BaseTitle', BaseTitle)
     app.component('BaseTable', BaseTable)
     app.component('BaseConfirmationDialog', BaseConfirmationDialog)
+    app.component('BaseFilterDateRange', BaseFilterDateRange)
 
     // Form
     app.component('BaseText', BaseText)

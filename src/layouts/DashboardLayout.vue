@@ -9,7 +9,7 @@ import male_avatar from 'assets/male.jpg'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { api } from 'src/boot/axios'
-import header_112_image from 'assets/header_112.jpg'
+import header_112_image from 'assets/header_image.jpg'
 
 // common
 defineOptions({
@@ -131,11 +131,11 @@ onUnmounted(() => {
                             class="tw-cursor-pointer"
                         />
                     </div>
-
-                    <q-img :src="header_112_image" class="tw-w-96" />
                 </div>
 
-                <div class="tw-flex tw-items-center tw-gap-3">
+                <q-img :src="header_112_image" class="tw-w-full tw-mx-5" />
+
+                <div class="tw-flex tw-justify-end tw-items-center tw-gap-3">
                     <section class="tw-flex tw-items-center tw-cursor-pointer">
                         <div class="tw-flex tw-gap-5 tw-items-center">
                             <q-avatar size="35px">
@@ -148,7 +148,9 @@ onUnmounted(() => {
 
                             <div class="tw-flex tw-gap-3 tw-items-center">
                                 <div>
-                                    <h1 class="tw-font-semibold tw-text-sm">
+                                    <h1
+                                        class="tw-font-semibold tw-text-sm tw-whitespace-nowrap"
+                                    >
                                         {{ user.employee?.name }}
                                     </h1>
                                     <p class="tw-text-xs tw-text-gray-600">

@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 // Import Swiper Vue.js components
-import logo_image from 'assets/logo_112.png'
-import { Autoplay } from 'swiper/modules'
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import { useRouter } from 'vue-router'
-import logo_tangerang from 'assets/logo_tangerang.png'
 import ambulance_gratis from 'assets/ambulance_gratis.png'
 import kdrt from 'assets/kdrt.png'
 import kebakaran from 'assets/kebakaran.png'
@@ -15,6 +10,8 @@ import kriminal from 'assets/kriminal.png'
 import mobil_jenazah from 'assets/mobil_jenazah.png'
 import penanganan_hewan from 'assets/penanganan_hewan.png'
 import pln from 'assets/pln.png'
+import tangerang_kota from 'assets/tangerang_kota.png'
+import { useRouter } from 'vue-router'
 
 // Import Swiper styles
 import { Loading, Notify, useMeta } from 'quasar'
@@ -109,97 +106,78 @@ const onLogin = async () => {
 </script>
 
 <template>
-    <section class="tw-grid tw-grid-cols-2 tw-min-h-screen">
-        <div class="tw-h-full tw-p-10 tw-flex tw-flex-col tw-justify-between">
-            <div>
-                <q-img :src="logo_tangerang" class="tw-w-20" />
-                <q-img :src="logo_image" class="tw-w-14" />
-            </div>
-
-            <div>
-                <h1 class="tw-text-2xl tw-font-semibold tw-text-secondary">
-                    Welcome Back.
-                </h1>
-                <p class="tw-text-gray-500 tw-text-sm tw-mt-1">
-                    Enter the username and password.
-                </p>
-
-                <q-form @submit.prevent="onLogin" class="tw-mt-8 tw-space-y-5">
-                    <base-text
-                        label="Username"
-                        v-model="form.username"
-                        align="top"
-                        icon="User"
-                        dense
-                        :required="true"
-                    />
-                    <base-password
-                        label="Password"
-                        v-model="form.password"
-                        align="top"
-                        type="password"
-                        icon="Lock1"
-                        dense
-                        :required="true"
-                    />
-
-                    <q-btn
-                        type="submit"
-                        unelevated
-                        no-caps
-                        color="secondary"
-                        label="Login"
-                        class="tw-w-full"
-                    />
-                </q-form>
-            </div>
+    <section class="login__section">
+        <section class="tw-w-full tw-h-screen tw-grid tw-grid-cols-2 tw-gap-5">
             <div />
-        </div>
+            <div class="tw-flex tw-flex-col tw-justify-center tw-items-center">
+                <q-card flat class="tw-w-[500px] tw-bg-white/90">
+                    <q-card-section>
+                        <div
+                            class="tw-h-full tw-p-10 tw-flex tw-flex-col tw-justify-between"
+                        >
+                            <div class="tw-flex tw-justify-center tw-mb-10">
+                                <q-img :src="tangerang_kota" class="tw-w-28" />
+                                <!-- <q-img :src="logo_image" class="tw-w-14" /> -->
+                            </div>
 
-        <div class="tw-p-2 tw-w-full tw-h-screen">
-            <div
-                class="tw-w-full tw-h-full tw-bg-gray-500 tw-rounded-md !tw-overflow-hidden tw-relative"
-            >
-                <q-img
-                    src="https://images.unsplash.com/photo-1435265603574-177a37a94c2f?q=80&w=1872&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    class="tw-object-cover"
-                />
+                            <div class="tw-z-50">
+                                <h1
+                                    class="tw-text-2xl tw-font-semibold tw-text-secondary"
+                                >
+                                    Welcome Back.
+                                </h1>
+                                <p class="tw-text-gray-500 tw-text-sm tw-mt-1">
+                                    Enter the username and password.
+                                </p>
 
-                <div class="tw-absolute tw-inset-0 tw-bg-gray-900/70">
-                    <swiper
-                        :direction="'vertical'"
-                        :modules="[Autoplay]"
-                        :autoplay="{
-                            delay: 2500,
-                            disableOnInteraction: false
-                        }"
-                        :slides-per-view="3"
-                        :spaceBetween="160"
-                        :centered-slides="false"
-                    >
-                        <template v-for="item in swipers">
-                            <swiper-slide>
-                                <q-card class="slide-card tw-max-w-sm">
-                                    <q-card-section>
-                                        <div class="text-h6 tw-max-w-sm">
-                                            {{ item.label }}
-                                        </div>
-                                        <q-img
-                                            :src="item.image"
-                                            class="tw-w-32"
-                                        />
-                                    </q-card-section>
-                                </q-card>
-                            </swiper-slide>
-                        </template>
-                    </swiper>
-                </div>
+                                <q-form
+                                    @submit.prevent="onLogin"
+                                    class="tw-mt-8 tw-space-y-5"
+                                >
+                                    <base-text
+                                        label="Username"
+                                        v-model="form.username"
+                                        align="top"
+                                        icon="User"
+                                        dense
+                                        :required="true"
+                                    />
+                                    <base-password
+                                        label="Password"
+                                        v-model="form.password"
+                                        align="top"
+                                        type="password"
+                                        icon="Lock1"
+                                        dense
+                                        :required="true"
+                                    />
+
+                                    <q-btn
+                                        type="submit"
+                                        unelevated
+                                        no-caps
+                                        color="secondary"
+                                        label="Login"
+                                        class="tw-w-full"
+                                    />
+                                </q-form>
+                            </div>
+                        </div>
+                    </q-card-section>
+                </q-card>
             </div>
-        </div>
+        </section>
     </section>
 </template>
 
 <style>
+.login__section {
+    width: 100%;
+    height: 100vh;
+    background: url(../../assets/login_image.jpg);
+    background-position: center;
+    background-size: cover;
+}
 .swiper {
     width: 100%;
     height: 100%;

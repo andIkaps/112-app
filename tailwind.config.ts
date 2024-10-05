@@ -8,7 +8,7 @@ const config = {
         extend: {
             colors: {
                 sidebar: '#25292E',
-                secondary: '#0d1b2a'
+                secondary: '#660708'
             }
         }
     },

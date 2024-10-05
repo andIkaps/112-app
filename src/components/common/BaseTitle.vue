@@ -19,6 +19,7 @@ defineProps<IProps>()
             {{ title }}
         </h1>
 
+        <slot></slot>
         <q-breadcrumbs class="tw-text-xs">
             <q-breadcrumbs-el
                 v-for="bc in crumbs"
