@@ -82,7 +82,7 @@ export const useAuthStore = defineStore('auth', {
             const currentTime = Date.now() / 1000
             this.isTokenExpired =
                 this.USER_DATA.exp < currentTime ||
-                this.USER_DATA.exp - currentTime <= 60
+                this.USER_DATA.exp - currentTime <= 120
         },
 
         startTokenExpirationCheck() {

@@ -15,40 +15,40 @@ const dateRange = ref({
 })
 
 const Days = ref([
+    // {
+    //     label: 'All',
+    //     value: 'all'
+    // },
+    // {
+    //     label: 'Today',
+    //     value: 'today'
+    // },
+    // {
+    //     label: 'This Week',
+    //     value: 'this_week'
+    // },
+    // {
+    //     label: 'Last Week',
+    //     value: 'last_week'
+    // },
     {
-        label: 'All',
-        value: 'all'
-    },
-    {
-        label: 'Today',
-        value: 'today'
-    },
-    {
-        label: 'This Week',
-        value: 'this_week'
-    },
-    {
-        label: 'Last Week',
-        value: 'last_week'
-    },
-    {
-        label: 'This Month',
+        label: 'Bulan Ini',
         value: 'this_month'
     },
     {
-        label: 'Last Month',
+        label: 'Bulan Kemarin',
         value: 'last_month'
     },
     {
-        label: 'This Years',
+        label: 'Tahun Ini',
         value: 'this_year'
     },
     {
-        label: 'Custom',
+        label: 'By Month',
         value: 'custom'
     }
 ])
-const Day = ref('This Years')
+const Day = ref('Tahun Ini')
 
 const setSelectedDay = (val) => {
     switch (val.value) {
@@ -179,7 +179,7 @@ onMounted(() => {
                     <q-item clickable @click="setSelectedDay(day)">
                         <q-item-section>{{ day.label }}</q-item-section>
 
-                        <q-menu v-if="day.label == 'Custom'">
+                        <q-menu v-if="day.value == 'custom'">
                             <q-date
                                 @update:model-value="onCustomRange"
                                 v-model="dateRange"

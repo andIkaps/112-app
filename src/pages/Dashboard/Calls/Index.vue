@@ -20,11 +20,19 @@ type CallData = {
 }
 
 // data
+const filterRef = ref<any>()
 const date = ref<string>(moment().format('YYYY-MM-DD'))
 const dateRange = ref<any>({})
-watch(date, () => {
-    fetchDashboard()
-})
+watch(
+    dateRange,
+    () => {
+        console.log('aksdlsak')
+        fetchDashboard()
+    },
+    {
+        deep: true
+    }
+)
 const stats = ref<CallData>({
     by_month: {},
     by_year: {},
@@ -102,8 +110,8 @@ const fetchDashboard = async () => {
 
     try {
         const payload = {
-            month_period: moment(date.value).format('MMMM'),
-            year: moment(date.value).format('YYYY')
+            month_period: moment(dateRange.value?.from).format('MMMM'),
+            year: moment(dateRange.value?.from).format('YYYY')
         }
 
         const { data: response } = await api.post(
@@ -113,8 +121,13 @@ const fetchDashboard = async () => {
 
         if (response.data) {
             stats.value = response.data
-            series.value[0].data = response.data.grafik_month
-            barSeries.value[0].data = response.data.bar_grafik_month
+            if (filterRef.value.Day == 'Tahun Ini') {
+                series.value[0].data = response.data.grafik_year
+                barSeries.value[0].data = response.data.bar_grafik_year
+            } else {
+                series.value[0].data = response.data.grafik_month
+                barSeries.value[0].data = response.data.bar_grafik_month
+            }
         }
     } catch (error) {
         console.log(error)
@@ -131,16 +144,13 @@ onMounted(() => {
 
 <template>
     <base-title title="Dashboard Panggilan Harian">
-        <base-filter-date-range v-model="dateRange" />
+        <base-filter-date-range ref="filterRef" v-model="dateRange" />
     </base-title>
 
-    <base-card title="Filter">
-        <template #content>
-            <base-date label="Date" v-model="date" dense :required="true" />
-        </template>
-    </base-card>
-
-    <main class="tw-my-5 tw-grid tw-grid-cols-5 tw-gap-5">
+    <main
+        v-if="filterRef?.Day != 'Tahun Ini'"
+        class="tw-my-5 tw-grid tw-grid-cols-5 tw-gap-5"
+    >
         <q-card flat class="tw-border-l-8 tw-border-l-[#9BBB59]">
             <q-card-section>
                 <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
@@ -191,7 +201,7 @@ onMounted(() => {
         <q-card flat class="tw-border-l-8 tw-border-l-[#9BBB59]">
             <q-card-section>
                 <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
-                    {{ stats.by_year.disconnect_call }}5
+                    {{ stats.by_year.disconnect_call }}
                 </h4>
                 <div class="tw-text-gray-600">Total Disconnect</div>
             </q-card-section>
@@ -200,7 +210,7 @@ onMounted(() => {
         <q-card flat class="tw-border-l-8 tw-border-l-[#4BACC6]">
             <q-card-section>
                 <h4 class="text-h4 tw-text-[#4BACC6] tw-font-semibold">
-                    {{ stats.by_year.prank_call }}5
+                    {{ stats.by_year.prank_call }}
                 </h4>
                 <div class="tw-text-gray-600">Total Prank</div>
             </q-card-section>
@@ -236,7 +246,7 @@ onMounted(() => {
 
     <main class="tw-grid tw-grid-cols-5 tw-gap-5">
         <base-card
-            title="Grafik Panggilan Harian Bulan Januari"
+            :title="`Grafik Panggilan Harian ${filterRef?.Day}`"
             class="tw-col-span-3"
         >
             <template #content>
