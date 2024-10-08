@@ -1,6 +1,22 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import moment from 'moment'
+import { Loading } from 'quasar'
+import { api } from 'src/boot/axios'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 
+// data
+const dateRange = ref<any>({})
+watch(
+    dateRange,
+    (newVal, oldVal) => {
+        if (oldVal?.from) {
+            fetchDashboard()
+        }
+    },
+    {
+        deep: true
+    }
+)
 const form = reactive({
     month_period: {
         label: '',
@@ -8,8 +24,8 @@ const form = reactive({
     },
     kecamatan: ''
 })
-
-const series = ref([44, 55, 13, 43, 22, 55, 76, 34, 0, 20, 11])
+const series = ref([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+const districtSeries = ref([])
 const chartOptions = reactive({
     chart: {
         width: 380,
@@ -28,6 +44,14 @@ const chartOptions = reactive({
         '#8E44AD', // Kasus KDRT
         '#34495E' // Kasus Keamanan
     ],
+    dataLabels: {
+        enabled: true,
+        formatter: function (val: any, opts: any) {
+            const label = opts.w.globals.labels[opts.seriesIndex]
+            const value = opts.w.globals.series[opts.seriesIndex]
+            return `${label}: ${value}`
+        }
+    },
     labels: [
         'Kasus Kecalakaan',
         'Kasus Kebakaran',
@@ -42,7 +66,8 @@ const chartOptions = reactive({
         'Kasus Keamanan'
     ],
     legend: {
-        show: false // This hides the legend (right label)
+        show: false, // This hides the legend (right label),
+        position: 'bottom'
     },
     responsive: [
         {
@@ -58,162 +83,228 @@ const chartOptions = reactive({
         }
     ]
 })
-const stats = reactive([
-    { label: 'Kasus Kecalakaan', color: '#FF5733', value: series.value[0] },
-    { label: 'Kasus Kebakaran', color: '#C70039', value: series.value[1] },
-    { label: 'Kasus Ambulan', color: '#900C3F', value: series.value[2] },
-    { label: 'Kasus PLN', color: '#581845', value: series.value[3] },
-    { label: 'Kasus Mobil', color: '#1C2833', value: series.value[4] },
-    { label: 'Kasus Penanganan', color: '#2E86C1', value: series.value[5] },
-    { label: 'Kasus Kriminal', color: '#28B463', value: series.value[6] },
-    { label: 'Kasus Bencana', color: '#F1C40F', value: series.value[7] },
-    { label: 'Kasus Gawat', color: '#E67E22', value: series.value[8] },
-    { label: 'Kasus KDRT', color: '#8E44AD', value: series.value[9] },
-    { label: 'Kasus Keamanan', color: '#34495E', value: series.value[10] },
-    {
-        label: 'Total Result',
-        color: '#0d1b2a',
-        value: series.value.reduce((a, b) => a + b, 0)
+const chartOptionsDistrict = reactive({
+    chart: {
+        width: 380,
+        type: 'donut'
+    },
+    // colors: [
+    //     '#FF5733', // Kasus Kecalakaan
+    //     '#C70039', // Kasus Kebakaran
+    //     '#900C3F', // Kasus Ambulan
+    //     '#581845', // Kasus PLN
+    //     '#1C2833', // Kasus Mobil
+    //     '#2E86C1', // Kasus Penanganan
+    //     '#28B463', // Kasus Kriminal
+    //     '#F1C40F', // Kasus Bencana
+    //     '#E67E22', // Kasus Gawat
+    //     '#8E44AD', // Kasus KDRT
+    //     '#34495E' // Kasus Keamanan
+    // ],
+    dataLabels: {
+        enabled: true,
+        formatter: function (val: any, opts: any) {
+            const label = opts.w.globals.labels[opts.seriesIndex]
+            const value = opts.w.globals.series[opts.seriesIndex]
+            return `${label}: ${value}`
+        }
+    },
+    labels: [],
+    legend: {
+        show: false, // This hides the legend (right label),
+        position: 'bottom'
+    },
+    responsive: [
+        {
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    show: false // This hides the legend (right label)
+                }
+            }
+        }
+    ]
+})
+const stats = computed(() => {
+    return [
+        {
+            label: 'Kasus Kecalakaan',
+            color: '#FF5733',
+            value: series.value[0]
+        },
+        { label: 'Kasus Kebakaran', color: '#C70039', value: series.value[1] },
+        { label: 'Kasus Ambulan', color: '#900C3F', value: series.value[2] },
+        { label: 'Kasus PLN', color: '#581845', value: series.value[3] },
+        { label: 'Kasus Mobil', color: '#1C2833', value: series.value[4] },
+        { label: 'Kasus Penanganan', color: '#2E86C1', value: series.value[5] },
+        { label: 'Kasus Kriminal', color: '#28B463', value: series.value[6] },
+        { label: 'Kasus Bencana', color: '#F1C40F', value: series.value[7] },
+        { label: 'Kasus Gawat', color: '#E67E22', value: series.value[8] },
+        { label: 'Kasus KDRT', color: '#8E44AD', value: series.value[9] },
+        { label: 'Kasus Keamanan', color: '#34495E', value: series.value[10] },
+        {
+            label: 'Total Result',
+            color: '#0d1b2a',
+            value: series.value.reduce((a, b) => a + b, 0)
+        }
+    ]
+})
+const loadingState = ref(false)
+const optDistricts = ref<any>([])
+const filterRef = ref<any>()
+
+// methods
+const fetchDashboard = async () => {
+    try {
+        loadingState.value = true
+        Loading.show({
+            message: 'Please wait...'
+        })
+
+        const payload = {
+            from: moment(dateRange.value?.from).format('MM'),
+            to: moment(dateRange.value?.to).format('MM'),
+            month_period: moment(dateRange.value?.from).format('MM'),
+            year: moment(dateRange.value?.from).format('YYYY'),
+            district_id: form.kecamatan
+        }
+
+        const { data: response } = await api.post(
+            '/dashboard/emergency-reports',
+            payload
+        )
+
+        if (response.data) {
+            series.value = Object.values(response.data.by_month)
+            chartOptionsDistrict.labels = response.data.by_year.label
+            districtSeries.value = response.data.by_year.series
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+        loadingState.value = false
     }
-])
+}
+
+const fetchDistricts = async () => {
+    try {
+        Loading.show({
+            message: 'Please wait...'
+        })
+
+        const { data: response } = await api.get('/districts')
+
+        if (response.data) {
+            optDistricts.value = response.data.map((item: any) => {
+                return {
+                    label: item.name,
+                    value: item.id
+                }
+            })
+
+            form.kecamatan = optDistricts.value[0]?.value
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+// hooks
+onMounted(() => {
+    fetchDistricts().then(() => {
+        fetchDashboard()
+    })
+})
 </script>
 
 <template>
-    <base-title title="Jumlah Kasus Gawat Darurat" />
+    <base-title title="Jumlah Kasus Gawat Darurat">
+        <base-filter-date-range ref="filterRef" v-model="dateRange" />
+    </base-title>
 
     <base-card title="Filter">
         <template #content>
-            <base-month
-                label="Month Period"
-                v-model="form.month_period"
-                :placeholder="form.month_period?.label"
-                dense
-                :required="true"
-            />
-
             <base-select
                 label="Kecamatan"
                 v-model="form.kecamatan"
-                :options="[
-                    {
-                        label: 'Batu Ceper',
-                        value: 'Batu Ceper'
-                    },
-                    {
-                        label: 'Benda',
-                        value: 'Benda'
-                    },
-                    {
-                        label: 'Cibodas',
-                        value: 'Cibodas'
-                    }
-                ]"
+                @update:model-value="fetchDashboard"
+                :options="optDistricts"
+                map-options
+                emit-value
                 dense
                 :required="true"
             />
         </template>
     </base-card>
 
-    <main class="tw-grid tw-grid-cols-12 tw-gap-5 tw-mt-5">
-        <div class="tw-col-span-9 tw-grid tw-grid-cols-3 tw-gap-5">
-            <template v-for="item in stats" :key="stats.label">
-                <q-card
-                    flat
-                    class="tw-border-l-8"
-                    :style="{
-                        borderLeftColor: `${item.color}`
-                    }"
-                >
-                    <q-card-section>
-                        <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
-                            {{ item.value }}
-                        </h4>
-                        <div class="tw-text-gray-600">{{ item.label }}</div>
-                    </q-card-section>
-                </q-card>
-            </template>
-        </div>
+    <section v-if="!loadingState">
+        <main class="tw-grid tw-grid-cols-12 tw-gap-5 tw-my-5">
+            <div class="tw-col-span-12 tw-grid tw-grid-cols-3 tw-gap-5">
+                <template v-for="item in stats" :key="stats.label">
+                    <q-card
+                        flat
+                        class="tw-border-l-8"
+                        :style="{
+                            borderLeftColor: `${item.color}`
+                        }"
+                    >
+                        <q-card-section>
+                            <h4
+                                class="text-h4 tw-text-[#9BBB59] tw-font-semibold"
+                            >
+                                {{ item.value }}
+                            </h4>
+                            <div class="tw-text-gray-600">{{ item.label }}</div>
+                        </q-card-section>
+                    </q-card>
+                </template>
+            </div>
+        </main>
 
-        <base-card title="Grand Total" class="tw-col-span-3 !tw-mt-0 tw-h-full">
-            <template #content>
-                <div
-                    class="tw-flex tw-justify-center tw-items-center tw-h-full"
-                >
-                    <apexchart
-                        type="donut"
-                        :options="chartOptions"
-                        :series="series"
-                        class="tw-w-full"
-                    ></apexchart>
-                </div>
-            </template>
-        </base-card>
-    </main>
+        <main class="tw-grid tw-grid-cols-12 tw-gap-5">
+            <base-card
+                title="Grand Total"
+                class="tw-col-span-6 !tw-mt-0 tw-h-full"
+            >
+                <template #content>
+                    <div
+                        class="tw-flex tw-justify-center tw-items-center tw-h-full"
+                    >
+                        <apexchart
+                            v-if="series.every((value) => value !== 0)"
+                            type="pie"
+                            :options="chartOptions"
+                            :series="series"
+                            class="tw-w-full !tw-mb-10"
+                        />
+                        <div v-else>No Data</div>
+                    </div>
+                </template>
+            </base-card>
 
-    <base-card title="Jumlah Kasus Berdasarkan Kecamatan" class="tw-col-span-9">
-        <template #content>
-            <q-markup-table flat>
-                <thead>
-                    <tr>
-                        <th
-                            class="text-left !tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                        >
-                            Kecamatan
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Kecalakaan
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Kebakaran
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Ambulan Gratis & Medis (AGD)
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus PLN
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Mobil Jenazah
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Penanganan Pada Hewan
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Kriminal
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Bencana Alam
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Gawat Darurat Lain
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus KDRT
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Kasus Keamanan dan Ketertiban
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="text-left tw-font-semibold tw-text-teal-600">
-                            Benda
-                        </td>
-                        <td class="text-center">2351</td>
-                        <td class="text-center">2049</td>
-                        <td class="text-center">2512</td>
-                        <td class="text-center">2053</td>
-                        <td class="text-center">2427</td>
-                        <td class="text-center">2433</td>
-                        <td class="text-center">2433</td>
-                        <td class="text-center">2733</td>
-                        <td class="text-center">2733</td>
-                        <td class="text-center">2733</td>
-                        <td class="text-center">2733</td>
-                    </tr>
-                </tbody>
-            </q-markup-table>
-        </template>
-    </base-card>
+            <base-card
+                title="Grand Total All Kecamatan"
+                class="tw-col-span-6 !tw-mt-0 tw-h-full"
+            >
+                <template #content>
+                    <div
+                        class="tw-flex tw-justify-center tw-items-center tw-h-full"
+                    >
+                        <apexchart
+                            type="pie"
+                            :options="chartOptionsDistrict"
+                            :series="districtSeries"
+                            class="tw-w-full !tw-mb-10"
+                        />
+                    </div>
+                </template>
+            </base-card>
+        </main>
+    </section>
 </template>

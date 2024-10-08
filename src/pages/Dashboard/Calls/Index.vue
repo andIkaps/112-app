@@ -21,7 +21,6 @@ type CallData = {
 
 // data
 const filterRef = ref<any>()
-const date = ref<string>(moment().format('YYYY-MM-DD'))
 const dateRange = ref<any>({})
 watch(
     dateRange,
@@ -259,7 +258,10 @@ onMounted(() => {
             </template>
         </base-card>
 
-        <base-card title="Rincian Panggilan Januari" class="tw-col-span-2">
+        <base-card
+            :title="`Rincian Panggilan ${filterRef?.Day}`"
+            class="tw-col-span-2"
+        >
             <template #content>
                 <apexchart
                     type="bar"

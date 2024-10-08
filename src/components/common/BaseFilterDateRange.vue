@@ -49,8 +49,13 @@ const Days = ref([
     }
 ])
 const Day = ref('Tahun Ini')
+const yearPicker = ref()
 
 const setSelectedDay = (val) => {
+    dateRange.value = {
+        from: '',
+        to: ''
+    }
     switch (val.value) {
         case 'today':
             dateRange.value.from = moment().format('YYYY-MM-DD')
@@ -179,11 +184,15 @@ onMounted(() => {
                     <q-item clickable @click="setSelectedDay(day)">
                         <q-item-section>{{ day.label }}</q-item-section>
 
-                        <q-menu v-if="day.value == 'custom'">
+                        <q-popup-proxy
+                            ref="yearPicker"
+                            v-if="day.value == 'custom'"
+                        >
                             <q-date
+                                @click="$refs.yearPicker.hide"
                                 @update:model-value="onCustomRange"
                                 v-model="dateRange"
-                                range
+                                default-view="Months"
                             >
                                 <div class="row items-center justify-end">
                                     <q-btn
@@ -195,7 +204,7 @@ onMounted(() => {
                                     />
                                 </div>
                             </q-date>
-                        </q-menu>
+                        </q-popup-proxy>
                     </q-item>
                 </template>
             </q-list>

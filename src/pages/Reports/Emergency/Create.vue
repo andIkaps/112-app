@@ -73,13 +73,39 @@ const onSubmitPeriod = () => {
 
     isSubmitted.value = true
 
+    form.detail = []
+
+    form.district_id.map((x: any) => {
+        form.detail.push({
+            district_id: x,
+            kecelakaan: 0,
+            kebakaran: 0,
+            ambulan_gratis: 0,
+            pln: 0,
+            mobil_jenazah: 0,
+            penanganan_hewan: 0,
+            keamanan: 0,
+            kriminal: 0,
+            bencana_alam: 0,
+            kdrt: 0,
+            gawat_darurat_lain: 0
+        })
+    })
+
     localStorage.setItem('temp_emergency_reports', JSON.stringify(form))
 }
 
 const onSubmitEmergencyReport = async () => {
     try {
+        const monthYearString = `${form.month_period.label} ${form.year}`
+        console.log(monthYearString)
+        const firstDate = moment(monthYearString, 'MMMM YYYY')
+            .startOf('month')
+            .format('YYYY-MM-DD')
+
         const { data: response } = await api.post('/emergency-reports', {
             period: form.month_period.label,
+            period_date: firstDate,
             year: form.year,
             detail: form.detail
         })
@@ -117,6 +143,7 @@ const handleCheckLocalData = (val: boolean) => {
         form.month_period = temp.month_period
         form.year = temp.year
         form.detail = temp.detail
+        form.district_id = temp.district_id
     }
 }
 
@@ -127,21 +154,6 @@ const fetchDistrict = async () => {
         if (response.data) {
             optDistrict.value = response.data.map(
                 (x: { name: string; id: number }) => {
-                    form.detail.push({
-                        district_id: x.id,
-                        kecelakaan: 0,
-                        kebakaran: 0,
-                        ambulan_gratis: 0,
-                        pln: 0,
-                        mobil_jenazah: 0,
-                        penanganan_hewan: 0,
-                        keamanan: 0,
-                        kriminal: 0,
-                        bencana_alam: 0,
-                        kdrt: 0,
-                        gawat_darurat_lain: 0
-                    })
-
                     return {
                         label: x.name,
                         value: x.id
@@ -190,6 +202,19 @@ onMounted(() => {
                     v-model="form.month_period"
                     :placeholder="form.month_period?.label"
                     dense
+                    :required="true"
+                />
+
+                <base-select
+                    label="Kecamatan"
+                    v-model="form.district_id"
+                    :options="optDistrict"
+                    map-options
+                    emit-value
+                    dense
+                    multiple
+                    use-chips
+                    clearable
                     :required="true"
                 />
 
