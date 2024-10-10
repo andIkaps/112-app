@@ -9,7 +9,7 @@ import male_avatar from 'assets/male.jpg'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { api } from 'src/boot/axios'
-import header_112_image from 'assets/header_image.jpg'
+import header_112_image from 'assets/header_image.png'
 
 // common
 defineOptions({
