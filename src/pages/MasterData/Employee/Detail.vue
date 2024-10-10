@@ -10,6 +10,7 @@ import { Loading } from 'quasar'
 type FormSchema = {
     name: string
     jasnita_number: string
+    education: string
     gender: string
     dob: string
     marital_status_id: string
@@ -45,6 +46,7 @@ const form = reactive<FormSchema>({
     name: '',
     jasnita_number: '',
     gender: '',
+    education: '',
     dob: '',
     marital_status_id: '',
     religion_id: '',
@@ -61,6 +63,36 @@ const master_data = reactive<any>({
         {
             label: 'Female',
             value: 'Female'
+        }
+    ],
+    education: [
+        {
+            label: 'Strata 1',
+            value: 'Strata 1'
+        },
+        {
+            label: 'Strata 2',
+            value: 'Strata 2'
+        },
+        {
+            label: 'Strata 3',
+            value: 'Strata 3'
+        },
+        {
+            label: 'Diploma 1',
+            value: 'Diploma 1'
+        },
+        {
+            label: 'Diploma 2',
+            value: 'Diploma 2'
+        },
+        {
+            label: 'Diploma 3',
+            value: 'Diploma 3'
+        },
+        {
+            label: 'SMK / SMA',
+            value: 'SMK / SMA'
         }
     ],
     religions: []
@@ -85,6 +117,7 @@ const fetchUserData = async () => {
             form.marital_status_id = response.data.marital_status_id
             form.religion_id = response.data.religion_id
             form.dob = response.data.dob
+            form.education = response.data.education
             form.gender = response.data.gender
             form.jasnita_number = response.data.jasnita_number
             form.name = response.data.name
@@ -175,6 +208,16 @@ onMounted(() => {
                 <base-text
                     label="Jasnita Number"
                     v-model="form.jasnita_number"
+                    dense
+                    :required="true"
+                />
+
+                <base-select
+                    label="Education"
+                    v-model="form.education"
+                    :options="master_data.education"
+                    emit-value
+                    map-options
                     dense
                     :required="true"
                 />

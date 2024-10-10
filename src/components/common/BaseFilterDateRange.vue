@@ -36,10 +36,6 @@ const Days = ref([
         value: 'this_month'
     },
     {
-        label: 'Bulan Kemarin',
-        value: 'last_month'
-    },
-    {
         label: 'Tahun Ini',
         value: 'this_year'
     },
@@ -165,8 +161,8 @@ onMounted(() => {
 <template>
     <q-btn
         unelevated
-        class="tw-capitalize tw-rounded !tw-bg-white !tw-text-[#515151] tw-px-4 tw-py-2"
-        style="border: 1px solid #efeef1"
+        color="secondary"
+        class="tw-capitalize tw-rounded tw-px-4 tw-py-2"
     >
         {{ Day }}
 

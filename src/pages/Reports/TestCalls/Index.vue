@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import * as XLSX from 'xlsx'
 import moment from 'moment'
 import { Loading, QTableColumn } from 'quasar'
 import { api } from 'src/boot/axios'
@@ -203,7 +204,7 @@ const onSubmitTestCall = async () => {
             notes: form.notes
         }
 
-        if (datas.value) {
+        if (datas.value?.id) {
             // Update Condition
             const { data: response } = await api.put(
                 `/test-calls/${datas.value.id}`,
@@ -234,6 +235,62 @@ const onSubmitTestCall = async () => {
     }
 }
 
+const onExportData = async () => {
+    Loading.show({
+        message: 'Please wait....'
+    })
+
+    try {
+        const { data: response } = await api.get('/test-calls/export')
+
+        if (response.data) {
+            generateXLSX(response.data)
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+const generateXLSX = (data: any) => {
+    const headers = tableColumns
+        .filter((item) => {
+            if (item.name != 'action') {
+                return item.label
+            }
+        })
+        .map((item) => item.label)
+
+    const rows = data.map((item: any) => {
+        return [
+            item.call_date,
+            item.location,
+            item.phone_number,
+            item.duration,
+            item.status,
+            item.notes || '-'
+        ]
+    })
+
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows])
+
+    worksheet['!cols'] = [
+        { wch: 20 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 }
+    ]
+
+    // Create a workbook and add the worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+    XLSX.writeFile(workbook, `Test Call Reports.xlsx`)
+}
+
 // hooks
 onMounted(() => {
     fetchCallReport()
@@ -261,7 +318,13 @@ onMounted(() => {
                     Create New
                 </q-btn>
 
-                <q-btn outline no-caps unelevated color="negative">
+                <q-btn
+                    outline
+                    no-caps
+                    unelevated
+                    color="negative"
+                    @click="onExportData"
+                >
                     <base-icon
                         icon-name="DocumentDownload"
                         size="16"

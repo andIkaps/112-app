@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import * as XLSX from 'xlsx'
 import moment from 'moment'
 import { Loading, QTableColumn } from 'quasar'
 import { api } from 'src/boot/axios'
@@ -21,6 +22,12 @@ const tableColumns: QTableColumn[] = [
         label: 'Jasnita Number',
         align: 'left',
         field: (row: any) => row.jasnita_number
+    },
+    {
+        name: 'education',
+        label: 'Education',
+        align: 'left',
+        field: (row: any) => row.education
     },
     {
         name: 'gender',
@@ -130,6 +137,51 @@ const onDeleteEmployee = async () => {
     }
 }
 
+const onExportData = async () => {
+    generateXLSX(tableRows.value)
+}
+
+const generateXLSX = (data: any) => {
+    const headers = tableColumns
+        .filter((item) => {
+            if (item.name != 'action') {
+                return item.label
+            }
+        })
+        .map((item) => item.label)
+
+    const rows = data.map((item: any) => {
+        return [
+            item.name,
+            item.jasnita_number,
+            item.education,
+            item.gender,
+            moment(item.dob).format('LL'),
+            item.marital_status?.name,
+            item.religion?.name,
+            item.address,
+            item.avatar == 'default.png' ? '-' : item.avatar
+        ]
+    })
+
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows])
+
+    worksheet['!cols'] = [
+        { wch: 20 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 }
+    ]
+
+    // Create a workbook and add the worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+    XLSX.writeFile(workbook, `Test Call Reports.xlsx`)
+}
+
 // hooks
 onMounted(() => {
     fetchEmployees()
@@ -159,7 +211,13 @@ onMounted(() => {
                     Create New
                 </q-btn>
 
-                <q-btn outline no-caps unelevated color="negative">
+                <q-btn
+                    outline
+                    no-caps
+                    unelevated
+                    color="negative"
+                    @click="onExportData"
+                >
                     <base-icon
                         icon-name="DocumentDownload"
                         size="16"

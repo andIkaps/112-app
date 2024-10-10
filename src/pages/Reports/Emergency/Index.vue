@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { QTableColumn } from 'quasar'
+import * as XLSX from 'xlsx'
+import { Loading, QTableColumn } from 'quasar'
 import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import { computed, onMounted, ref } from 'vue'
@@ -134,6 +135,75 @@ const fetchEmergencyReports = async () => {
     }
 }
 
+const onExportData = async () => {
+    Loading.show({
+        message: 'Please wait....'
+    })
+
+    try {
+        const { data: response } = await api.get('/emergency-reports/export')
+
+        if (response.data) {
+            generateXLSX(response.data)
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
+    }
+}
+
+const generateXLSX = (data: any) => {
+    const headers = tableColumns
+        .filter((item) => {
+            if (item.name != 'action') {
+                return item.label
+            }
+        })
+        .map((item) => item.label)
+
+    const rows = data.map((item: any) => {
+        return [
+            item.period,
+            item.district.name,
+            item.kecelakaan,
+            item.kebakaran,
+            item.ambulan_gratis,
+            item.pln,
+            item.mobil_jenazah,
+            item.penanganan_hewan,
+            item.keamanan,
+            item.kriminal,
+            item.bencana_alam,
+            item.kdrt,
+            item.gawat_darurat_lain
+        ]
+    })
+
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows])
+
+    worksheet['!cols'] = [
+        { wch: 20 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 }
+    ]
+
+    // Create a workbook and add the worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+    XLSX.writeFile(workbook, `Emergency Reports.xlsx`)
+}
+
 // hooks
 onMounted(() => {
     fetchEmergencyReports()
@@ -163,7 +233,13 @@ onMounted(() => {
                     Create New
                 </q-btn>
 
-                <q-btn outline no-caps unelevated color="negative">
+                <q-btn
+                    outline
+                    no-caps
+                    unelevated
+                    color="negative"
+                    @click="onExportData"
+                >
                     <base-icon
                         icon-name="DocumentDownload"
                         size="16"

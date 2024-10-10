@@ -98,7 +98,7 @@ const onSubmitPeriod = () => {
 const onSubmitEmergencyReport = async () => {
     try {
         const monthYearString = `${form.month_period.label} ${form.year}`
-        console.log(monthYearString)
+
         const firstDate = moment(monthYearString, 'MMMM YYYY')
             .startOf('month')
             .format('YYYY-MM-DD')
@@ -116,6 +116,7 @@ const onSubmitEmergencyReport = async () => {
             router.push({
                 name: 'emergency-report-page'
             })
+            localStorage.removeItem('temp_emergency_reports')
         }
     } catch (error) {
         console.log(error)

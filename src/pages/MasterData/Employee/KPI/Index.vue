@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { QTableColumn } from 'quasar'
+import * as XLSX from 'xlsx'
+import { Loading, QTableColumn } from 'quasar'
 import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import { onMounted, ref } from 'vue'
@@ -153,6 +154,57 @@ const calculateGrade = (row: any) => {
     return grade
 }
 
+const onExportData = async () => {
+    generateXLSX(tableRows.value)
+}
+
+const generateXLSX = (data: any) => {
+    const headers = tableColumns
+        .filter((item) => {
+            if (item.name != 'action') {
+                return item.label
+            }
+        })
+        .map((item) => item.label)
+
+    const rows = data.map((item: any) => {
+        return [
+            `${item.period} ${item.year}`,
+            item.employee?.name,
+            countAverage([item.calm, item.fast, item.dispatch]),
+            countAverage([
+                item.greating_opening,
+                item.greating_closing,
+                item.activity
+            ]),
+            parseFloat(item.loyal).toFixed(1),
+            countAverage([item.late, item.clean, item.take_break]),
+            calculateTotalNilai(item).toFixed(2),
+            calculateGrade(item)
+        ]
+    })
+
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows])
+
+    worksheet['!cols'] = [
+        { wch: 20 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 10 }
+    ]
+
+    // Create a workbook and add the worksheet
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+    XLSX.writeFile(workbook, `Employee KPI.xlsx`)
+}
+
 // hooks
 onMounted(() => {
     fetchEmployeeKPI()
@@ -182,7 +234,13 @@ onMounted(() => {
                     Create New
                 </q-btn>
 
-                <q-btn outline no-caps unelevated color="negative">
+                <q-btn
+                    outline
+                    no-caps
+                    unelevated
+                    color="negative"
+                    @click="onExportData"
+                >
                     <base-icon
                         icon-name="DocumentDownload"
                         size="16"
@@ -231,7 +289,7 @@ onMounted(() => {
                 </template>
 
                 <template #total_nilai="props">
-                    {{ calculateTotalNilai(props.row) }}
+                    {{ calculateTotalNilai(props.row).toFixed(2) }}
                 </template>
 
                 <template #grade="props">

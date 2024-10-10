@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import html2PDF from 'jspdf-html2canvas'
 import moment from 'moment'
 import { Loading } from 'quasar'
 import { api } from 'src/boot/axios'
@@ -135,6 +136,55 @@ const fetchDashboard = async () => {
     }
 }
 
+const printPDF = async () => {
+    try {
+        const content = document.getElementById('content')
+        const buttons = document.querySelectorAll('.hiddenButton')
+
+        if (!content) {
+            console.error('Content element not found.')
+            return
+        }
+
+        // Store the original display style of each button and hide them
+        const buttonDisplayStyles: string[] = []
+        buttons.forEach((button) => {
+            const buttonElement = button as HTMLElement
+            buttonDisplayStyles.push(buttonElement.style.display)
+            buttonElement.style.display = 'none'
+        })
+
+        // Generate the PDF
+        await html2PDF(content, {
+            jsPDF: {
+                unit: 'pt',
+                format: 'a4'
+            },
+            html2canvas: {
+                scrollX: 0,
+                scrollY: -window.scrollY
+            },
+            imageType: 'image/jpeg',
+            margin: {
+                top: 15,
+                right: 15,
+                bottom: 15,
+                left: 15
+            },
+            // pagebreak: { mode: ['avoid-all', 'css'] },
+            output: `Dashboard Call Reports.pdf`
+        })
+
+        // Restore the original display style of each button
+        buttons.forEach((button, index) => {
+            const buttonElement = button as HTMLElement
+            buttonElement.style.display = buttonDisplayStyles[index] || ''
+        })
+    } catch (error) {
+        console.error('Error generating PDF:', error)
+    }
+}
+
 // hooks
 onMounted(() => {
     fetchDashboard()
@@ -142,194 +192,221 @@ onMounted(() => {
 </script>
 
 <template>
-    <base-title title="Dashboard Panggilan Harian">
-        <base-filter-date-range ref="filterRef" v-model="dateRange" />
-    </base-title>
+    <section id="content">
+        <base-title title="Dashboard Panggilan Harian">
+            <div class="tw-space-x-4">
+                <base-filter-date-range
+                    ref="filterRef"
+                    v-model="dateRange"
+                    class="hiddenButton"
+                />
+                <q-btn
+                    @click="printPDF"
+                    unelevated
+                    color="negative"
+                    class="tw-capitalize tw-rounded tw-px-4 tw-py-2 hiddenButton"
+                >
+                    <base-icon icon-name="DocumentText" size="22" />
+                    <div class="tw-ml-2">Export Data</div>
+                </q-btn>
+            </div>
+        </base-title>
 
-    <main
-        v-if="filterRef?.Day != 'Tahun Ini'"
-        class="tw-my-5 tw-grid tw-grid-cols-5 tw-gap-5"
-    >
-        <q-card flat class="tw-border-l-8 tw-border-l-[#9BBB59]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
-                    {{ stats.by_month.disconnect_call }}
-                </h4>
-                <div class="tw-text-gray-600">Disconnect</div>
-            </q-card-section>
-        </q-card>
+        <main
+            v-if="filterRef?.Day != 'Tahun Ini'"
+            class="tw-my-5 tw-grid tw-grid-cols-5 tw-gap-5"
+        >
+            <q-card flat class="tw-border-l-8 tw-border-l-[#9BBB59]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
+                        {{ stats.by_month.disconnect_call }}
+                    </h4>
+                    <div class="tw-text-gray-600">Disconnect</div>
+                </q-card-section>
+            </q-card>
 
-        <q-card flat class="tw-border-l-8 tw-border-l-[#4BACC6]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#4BACC6] tw-font-semibold">
-                    {{ stats.by_month.prank_call }}
-                </h4>
-                <div class="tw-text-gray-600">Prank</div>
-            </q-card-section>
-        </q-card>
+            <q-card flat class="tw-border-l-8 tw-border-l-[#4BACC6]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#4BACC6] tw-font-semibold">
+                        {{ stats.by_month.prank_call }}
+                    </h4>
+                    <div class="tw-text-gray-600">Prank</div>
+                </q-card-section>
+            </q-card>
 
-        <q-card flat class="tw-border-l-8 tw-border-l-[#F79646]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#F79646] tw-font-semibold">
-                    {{ stats.by_month.education_call }}
-                </h4>
-                <div class="tw-text-gray-600">Education</div>
-            </q-card-section>
-        </q-card>
+            <q-card flat class="tw-border-l-8 tw-border-l-[#F79646]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#F79646] tw-font-semibold">
+                        {{ stats.by_month.education_call }}
+                    </h4>
+                    <div class="tw-text-gray-600">Education</div>
+                </q-card-section>
+            </q-card>
 
-        <q-card flat class="tw-border-l-8 tw-border-l-[#C0504D]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#C0504D] tw-font-semibold">
-                    {{ stats.by_month.emergency_call }}
-                </h4>
-                <div class="tw-text-gray-600">Emergency</div>
-            </q-card-section>
-        </q-card>
+            <q-card flat class="tw-border-l-8 tw-border-l-[#C0504D]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#C0504D] tw-font-semibold">
+                        {{ stats.by_month.emergency_call }}
+                    </h4>
+                    <div class="tw-text-gray-600">Emergency</div>
+                </q-card-section>
+            </q-card>
 
-        <q-card flat class="tw-border-l-8 tw-border-l-[#8064A2]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#8064A2] tw-font-semibold">
-                    {{ stats.by_month.abandoned }}
-                </h4>
-                <div class="tw-text-gray-600">Abandoned</div>
-            </q-card-section>
-        </q-card>
-    </main>
+            <q-card flat class="tw-border-l-8 tw-border-l-[#8064A2]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#8064A2] tw-font-semibold">
+                        {{ stats.by_month.abandoned }}
+                    </h4>
+                    <div class="tw-text-gray-600">Abandoned</div>
+                </q-card-section>
+            </q-card>
+        </main>
 
-    <main class="tw-my-5 tw-grid tw-grid-cols-5 tw-gap-5">
-        <q-card flat class="tw-border-l-8 tw-border-l-[#9BBB59]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
-                    {{ stats.by_year.disconnect_call }}
-                </h4>
-                <div class="tw-text-gray-600">Total Disconnect</div>
-            </q-card-section>
-        </q-card>
+        <main class="tw-my-5 tw-grid tw-grid-cols-5 tw-gap-5">
+            <q-card flat class="tw-border-l-8 tw-border-l-[#9BBB59]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
+                        {{ stats.by_year.disconnect_call }}
+                    </h4>
+                    <div class="tw-text-gray-600">Total Disconnect</div>
+                </q-card-section>
+            </q-card>
 
-        <q-card flat class="tw-border-l-8 tw-border-l-[#4BACC6]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#4BACC6] tw-font-semibold">
-                    {{ stats.by_year.prank_call }}
-                </h4>
-                <div class="tw-text-gray-600">Total Prank</div>
-            </q-card-section>
-        </q-card>
+            <q-card flat class="tw-border-l-8 tw-border-l-[#4BACC6]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#4BACC6] tw-font-semibold">
+                        {{ stats.by_year.prank_call }}
+                    </h4>
+                    <div class="tw-text-gray-600">Total Prank</div>
+                </q-card-section>
+            </q-card>
 
-        <q-card flat class="tw-border-l-8 tw-border-l-[#F79646]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#F79646] tw-font-semibold">
-                    {{ stats.by_year.education_call }}
-                </h4>
-                <div class="tw-text-gray-600">Total Education</div>
-            </q-card-section>
-        </q-card>
+            <q-card flat class="tw-border-l-8 tw-border-l-[#F79646]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#F79646] tw-font-semibold">
+                        {{ stats.by_year.education_call }}
+                    </h4>
+                    <div class="tw-text-gray-600">Total Education</div>
+                </q-card-section>
+            </q-card>
 
-        <q-card flat class="tw-border-l-8 tw-border-l-[#C0504D]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#C0504D] tw-font-semibold">
-                    {{ stats.by_year.emergency_call }}
-                </h4>
-                <div class="tw-text-gray-600">Total Emergency</div>
-            </q-card-section>
-        </q-card>
+            <q-card flat class="tw-border-l-8 tw-border-l-[#C0504D]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#C0504D] tw-font-semibold">
+                        {{ stats.by_year.emergency_call }}
+                    </h4>
+                    <div class="tw-text-gray-600">Total Emergency</div>
+                </q-card-section>
+            </q-card>
 
-        <q-card flat class="tw-border-l-8 tw-border-l-[#8064A2]">
-            <q-card-section>
-                <h4 class="text-h4 tw-text-[#8064A2] tw-font-semibold">
-                    {{ stats.by_year.abandoned }}
-                </h4>
-                <div class="tw-text-gray-600">Total Abandoned</div>
-            </q-card-section>
-        </q-card>
-    </main>
+            <q-card flat class="tw-border-l-8 tw-border-l-[#8064A2]">
+                <q-card-section>
+                    <h4 class="text-h4 tw-text-[#8064A2] tw-font-semibold">
+                        {{ stats.by_year.abandoned }}
+                    </h4>
+                    <div class="tw-text-gray-600">Total Abandoned</div>
+                </q-card-section>
+            </q-card>
+        </main>
 
-    <main class="tw-grid tw-grid-cols-5 tw-gap-5">
+        <main class="tw-grid tw-grid-cols-5 tw-gap-5">
+            <base-card
+                :title="`Grafik Panggilan Harian ${filterRef?.Day}`"
+                class="tw-col-span-3"
+            >
+                <template #content>
+                    <apexchart
+                        type="line"
+                        height="350"
+                        :options="chartOptions"
+                        :series="series"
+                    />
+                </template>
+            </base-card>
+
+            <base-card
+                :title="`Rincian Panggilan ${filterRef?.Day}`"
+                class="tw-col-span-2"
+            >
+                <template #content>
+                    <apexchart
+                        type="bar"
+                        height="350"
+                        :options="barChartOptions"
+                        :series="barSeries"
+                    />
+                </template>
+            </base-card>
+        </main>
+
         <base-card
-            :title="`Grafik Panggilan Harian ${filterRef?.Day}`"
+            title="Total Keseluruhan Panggilan Tahun 2024"
             class="tw-col-span-3"
         >
             <template #content>
-                <apexchart
-                    type="line"
-                    height="350"
-                    :options="chartOptions"
-                    :series="series"
-                />
-            </template>
-        </base-card>
-
-        <base-card
-            :title="`Rincian Panggilan ${filterRef?.Day}`"
-            class="tw-col-span-2"
-        >
-            <template #content>
-                <apexchart
-                    type="bar"
-                    height="350"
-                    :options="barChartOptions"
-                    :series="barSeries"
-                />
-            </template>
-        </base-card>
-    </main>
-
-    <base-card
-        title="Total Keseluruhan Panggilan Tahun 2024"
-        class="tw-col-span-3"
-    >
-        <template #content>
-            <q-markup-table flat>
-                <thead>
-                    <tr>
-                        <th
-                            class="text-left !tw-bg-gray-100 tw-font-medium !tw-text-sm"
-                        >
-                            Month Period
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Disconnect Calls
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Prank Calls
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Education Calls
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Emergency Calls
-                        </th>
-                        <th class="!tw-bg-gray-100 tw-font-medium !tw-text-sm">
-                            Abandoned
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template v-for="item in stats.total">
+                <q-markup-table flat>
+                    <thead>
                         <tr>
-                            <td
-                                class="text-left tw-font-semibold tw-text-teal-600"
+                            <th
+                                class="text-left !tw-bg-gray-100 tw-font-medium !tw-text-sm"
                             >
-                                {{ item.month_period }}
-                            </td>
-                            <td class="text-center">
-                                {{ item.total_disconnect_call }}
-                            </td>
-                            <td class="text-center">
-                                {{ item.total_prank_call }}
-                            </td>
-                            <td class="text-center">
-                                {{ item.total_education_call }}
-                            </td>
-                            <td class="text-center">
-                                {{ item.total_emergency_call }}
-                            </td>
-                            <td class="text-center">
-                                {{ item.total_abandoned }}
-                            </td>
+                                Month Period
+                            </th>
+                            <th
+                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
+                            >
+                                Disconnect Calls
+                            </th>
+                            <th
+                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
+                            >
+                                Prank Calls
+                            </th>
+                            <th
+                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
+                            >
+                                Education Calls
+                            </th>
+                            <th
+                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
+                            >
+                                Emergency Calls
+                            </th>
+                            <th
+                                class="!tw-bg-gray-100 tw-font-medium !tw-text-sm"
+                            >
+                                Abandoned
+                            </th>
                         </tr>
-                    </template>
-                </tbody>
-            </q-markup-table>
-        </template>
-    </base-card>
+                    </thead>
+                    <tbody>
+                        <template v-for="item in stats.total">
+                            <tr>
+                                <td
+                                    class="text-left tw-font-semibold tw-text-teal-600"
+                                >
+                                    {{ item.month_period }}
+                                </td>
+                                <td class="text-center">
+                                    {{ item.total_disconnect_call }}
+                                </td>
+                                <td class="text-center">
+                                    {{ item.total_prank_call }}
+                                </td>
+                                <td class="text-center">
+                                    {{ item.total_education_call }}
+                                </td>
+                                <td class="text-center">
+                                    {{ item.total_emergency_call }}
+                                </td>
+                                <td class="text-center">
+                                    {{ item.total_abandoned }}
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </q-markup-table>
+            </template>
+        </base-card>
+    </section>
 </template>

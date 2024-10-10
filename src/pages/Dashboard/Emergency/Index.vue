@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import html2PDF from 'jspdf-html2canvas'
 import moment from 'moment'
 import { Loading } from 'quasar'
 import { api } from 'src/boot/axios'
@@ -46,10 +47,14 @@ const chartOptions = reactive({
     ],
     dataLabels: {
         enabled: true,
+        style: {
+            fontSize: '22px', // Increase the font size
+            fontWeight: 'bold' // Optional: make the text bold
+        },
         formatter: function (val: any, opts: any) {
-            const label = opts.w.globals.labels[opts.seriesIndex]
+            // const label = opts.w.globals.labels[opts.seriesIndex]
             const value = opts.w.globals.series[opts.seriesIndex]
-            return `${label}: ${value}`
+            return value
         }
     },
     labels: [
@@ -66,7 +71,7 @@ const chartOptions = reactive({
         'Kasus Keamanan'
     ],
     legend: {
-        show: false, // This hides the legend (right label),
+        show: true, // This hides the legend (right label),
         position: 'bottom'
     },
     responsive: [
@@ -103,15 +108,18 @@ const chartOptionsDistrict = reactive({
     // ],
     dataLabels: {
         enabled: true,
+        style: {
+            fontSize: '22px', // Increase the font size
+            fontWeight: 'bold' // Optional: make the text bold
+        },
         formatter: function (val: any, opts: any) {
-            const label = opts.w.globals.labels[opts.seriesIndex]
             const value = opts.w.globals.series[opts.seriesIndex]
-            return `${label}: ${value}`
+            return value
         }
     },
     labels: [],
     legend: {
-        show: false, // This hides the legend (right label),
+        show: true, // This hides the legend (right label),
         position: 'bottom'
     },
     responsive: [
@@ -215,6 +223,55 @@ const fetchDistricts = async () => {
     }
 }
 
+const printPDF = async () => {
+    try {
+        const content = document.getElementById('content')
+        const buttons = document.querySelectorAll('.hiddenButton')
+
+        if (!content) {
+            console.error('Content element not found.')
+            return
+        }
+
+        // Store the original display style of each button and hide them
+        const buttonDisplayStyles: string[] = []
+        buttons.forEach((button) => {
+            const buttonElement = button as HTMLElement
+            buttonDisplayStyles.push(buttonElement.style.display)
+            buttonElement.style.display = 'none'
+        })
+
+        // Generate the PDF
+        await html2PDF(content, {
+            jsPDF: {
+                unit: 'pt',
+                format: 'a4'
+            },
+            html2canvas: {
+                scrollX: 0,
+                scrollY: -window.scrollY
+            },
+            imageType: 'image/jpeg',
+            margin: {
+                top: 15,
+                right: 15,
+                bottom: 15,
+                left: 15
+            },
+            // pagebreak: { mode: ['avoid-all', 'css'] },
+            output: `Dashboard Call Reports.pdf`
+        })
+
+        // Restore the original display style of each button
+        buttons.forEach((button, index) => {
+            const buttonElement = button as HTMLElement
+            buttonElement.style.display = buttonDisplayStyles[index] || ''
+        })
+    } catch (error) {
+        console.error('Error generating PDF:', error)
+    }
+}
+
 // hooks
 onMounted(() => {
     fetchDistricts().then(() => {
@@ -224,87 +281,106 @@ onMounted(() => {
 </script>
 
 <template>
-    <base-title title="Jumlah Kasus Gawat Darurat">
-        <base-filter-date-range ref="filterRef" v-model="dateRange" />
-    </base-title>
-
-    <base-card title="Filter">
-        <template #content>
-            <base-select
-                label="Kecamatan"
-                v-model="form.kecamatan"
-                @update:model-value="fetchDashboard"
-                :options="optDistricts"
-                map-options
-                emit-value
-                dense
-                :required="true"
-            />
-        </template>
-    </base-card>
-
-    <section v-if="!loadingState">
-        <main class="tw-grid tw-grid-cols-12 tw-gap-5 tw-my-5">
-            <div class="tw-col-span-12 tw-grid tw-grid-cols-3 tw-gap-5">
-                <template v-for="item in stats" :key="stats.label">
-                    <q-card
-                        flat
-                        class="tw-border-l-8"
-                        :style="{
-                            borderLeftColor: `${item.color}`
-                        }"
-                    >
-                        <q-card-section>
-                            <h4
-                                class="text-h4 tw-text-[#9BBB59] tw-font-semibold"
-                            >
-                                {{ item.value }}
-                            </h4>
-                            <div class="tw-text-gray-600">{{ item.label }}</div>
-                        </q-card-section>
-                    </q-card>
-                </template>
+    <section id="content">
+        <base-title title="Jumlah Kasus Gawat Darurat">
+            <div class="tw-space-x-4">
+                <base-filter-date-range
+                    ref="filterRef"
+                    v-model="dateRange"
+                    class="hiddenButton"
+                />
+                <q-btn
+                    @click="printPDF"
+                    unelevated
+                    color="negative"
+                    class="tw-capitalize tw-rounded tw-px-4 tw-py-2 hiddenButton"
+                >
+                    <base-icon icon-name="DocumentText" size="22" />
+                    <div class="tw-ml-2">Export Data</div>
+                </q-btn>
             </div>
-        </main>
+        </base-title>
 
-        <main class="tw-grid tw-grid-cols-12 tw-gap-5">
-            <base-card
-                title="Grand Total"
-                class="tw-col-span-6 !tw-mt-0 tw-h-full"
-            >
-                <template #content>
-                    <div
-                        class="tw-flex tw-justify-center tw-items-center tw-h-full"
-                    >
-                        <apexchart
-                            v-if="series.every((value) => value !== 0)"
-                            type="pie"
-                            :options="chartOptions"
-                            :series="series"
-                            class="tw-w-full !tw-mb-10"
-                        />
-                        <div v-else>No Data</div>
-                    </div>
-                </template>
-            </base-card>
+        <base-card title="Filter">
+            <template #content>
+                <base-select
+                    label="Kecamatan"
+                    v-model="form.kecamatan"
+                    @update:model-value="fetchDashboard"
+                    :options="optDistricts"
+                    map-options
+                    emit-value
+                    dense
+                    :required="true"
+                />
+            </template>
+        </base-card>
 
-            <base-card
-                title="Grand Total All Kecamatan"
-                class="tw-col-span-6 !tw-mt-0 tw-h-full"
-            >
-                <template #content>
-                    <div
-                        class="tw-flex tw-justify-center tw-items-center tw-h-full"
-                    >
-                        <apexchart
-                            type="pie"
-                            :options="chartOptionsDistrict"
-                            :series="districtSeries"
-                            class="tw-w-full !tw-mb-10"
-                        />
-                    </div>
-                </template>
-            </base-card>
-        </main>
+        <section v-if="!loadingState">
+            <main class="tw-grid tw-grid-cols-12 tw-gap-5 tw-my-5">
+                <div class="tw-col-span-12 tw-grid tw-grid-cols-3 tw-gap-5">
+                    <template v-for="item in stats" :key="stats.label">
+                        <q-card
+                            flat
+                            class="tw-border-l-8"
+                            :style="{
+                                borderLeftColor: `${item.color}`
+                            }"
+                        >
+                            <q-card-section>
+                                <h4
+                                    class="text-h4 tw-text-[#9BBB59] tw-font-semibold"
+                                >
+                                    {{ item.value }}
+                                </h4>
+                                <div class="tw-text-gray-600">
+                                    {{ item.label }}
+                                </div>
+                            </q-card-section>
+                        </q-card>
+                    </template>
+                </div>
+            </main>
+
+            <main class="tw-grid tw-grid-cols-12 tw-gap-5">
+                <base-card
+                    title="Grand Total"
+                    class="tw-col-span-6 !tw-mt-0 tw-h-full"
+                >
+                    <template #content>
+                        <div
+                            class="tw-flex tw-justify-center tw-items-center tw-h-full"
+                        >
+                            <apexchart
+                                v-if="series.every((value) => value !== 0)"
+                                type="pie"
+                                :options="chartOptions"
+                                :series="series"
+                                class="tw-w-full !tw-mb-10"
+                            />
+                            <div v-else>No Data</div>
+                        </div>
+                    </template>
+                </base-card>
+
+                <base-card
+                    title="Grand Total All Kecamatan"
+                    class="tw-col-span-6 !tw-mt-0 tw-h-full"
+                >
+                    <template #content>
+                        <div
+                            class="tw-flex tw-justify-center tw-items-center tw-h-full"
+                        >
+                            <apexchart
+                                type="pie"
+                                :options="chartOptionsDistrict"
+                                :series="districtSeries"
+                                class="tw-w-full !tw-mb-10"
+                            />
+                        </div>
+                    </template>
+                </base-card>
+            </main>
+        </section>
     </section>
 </template>
