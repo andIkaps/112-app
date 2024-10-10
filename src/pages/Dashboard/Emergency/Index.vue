@@ -259,7 +259,7 @@ const printPDF = async () => {
                 left: 15
             },
             // pagebreak: { mode: ['avoid-all', 'css'] },
-            output: `Dashboard Call Reports.pdf`
+            output: `Dashboard Emergency Reports.pdf`
         })
 
         // Restore the original display style of each button

@@ -179,7 +179,7 @@ const generateXLSX = (data: any) => {
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
 
-    XLSX.writeFile(workbook, `Test Call Reports.xlsx`)
+    XLSX.writeFile(workbook, `Employee.xlsx`)
 }
 
 // hooks
