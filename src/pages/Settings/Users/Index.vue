@@ -350,7 +350,7 @@ onMounted(() => {
                     Create New
                 </q-btn>
 
-                <q-btn outline no-caps unelevated color="negative">
+                <q-btn outline no-caps unelevated color="negative" class="tw-hidden">
                     <base-icon
                         icon-name="DocumentDownload"
                         size="16"
