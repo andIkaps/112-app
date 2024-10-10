@@ -68,6 +68,13 @@ const routes: RouteRecordRaw[] = [
                 name: 'call-report-edit-page'
             },
 
+            // Test Calls
+            {
+                path: '/test-calls',
+                component: () => import('pages/Reports/TestCalls/Index.vue'),
+                name: 'test-call-page'
+            },
+
             // Emergency Reports
             {
                 path: '/emergency-reports',
@@ -127,12 +134,14 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('pages/MasterData/Religion/Index.vue'),
                 name: 'religion-page'
             },
+
             // # Status
             {
                 path: '/master-data/status',
                 component: () => import('pages/MasterData/Status/Index.vue'),
                 name: 'status-page'
             },
+
             // # District
             {
                 path: '/master-data/districts',
