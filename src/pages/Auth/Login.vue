@@ -11,6 +11,7 @@ import mobil_jenazah from 'assets/mobil_jenazah.png'
 import penanganan_hewan from 'assets/penanganan_hewan.png'
 import pln from 'assets/pln.png'
 import tangerang_kota from 'assets/tangerang_kota.png'
+import logo_update from 'assets/logo_update.png'
 import { useRouter } from 'vue-router'
 
 // Import Swiper styles
@@ -117,14 +118,14 @@ const onLogin = async () => {
                         >
                             <div class="tw-flex tw-justify-center tw-mb-10">
                                 <q-img :src="tangerang_kota" class="tw-w-28" />
-                                <!-- <q-img :src="logo_image" class="tw-w-14" /> -->
+                                <q-img :src="logo_update" class="tw-w-28" />
                             </div>
 
                             <div class="tw-z-50">
                                 <h1
                                     class="tw-text-2xl tw-font-semibold tw-text-secondary"
                                 >
-                                    Welcome Back.
+                                    Welcome To 112 Reports.
                                 </h1>
                                 <p class="tw-text-gray-500 tw-text-sm tw-mt-1">
                                     Enter the username and password.

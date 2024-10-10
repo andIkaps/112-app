@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import Navigation, { NavigationProps } from 'components/common/Navigation.vue'
 import { Loading, useMeta } from 'quasar'
-import logo_image from 'assets/logo_112.png'
+import logo_image from 'assets/logo_update.png'
 import { useAuthStore } from 'src/stores/auth'
 import female_avatar from 'assets/female.jpg'
 import male_avatar from 'assets/male.jpg'
@@ -170,23 +170,6 @@ onUnmounted(() => {
                                 class="tw-shadow-sm tw-translate-y-2"
                             >
                                 <q-list style="min-width: 150px">
-                                    <q-item clickable v-close-popup>
-                                        <q-item-section>
-                                            <div
-                                                class="tw-flex tw-items-center tw-justify-start tw-gap-3 tw-text-xs"
-                                            >
-                                                <base-icon
-                                                    icon-name="User"
-                                                    size="14"
-                                                    class="tw-text-green-600"
-                                                />
-                                                <h1>Profile</h1>
-                                            </div>
-                                        </q-item-section>
-                                    </q-item>
-
-                                    <q-separator />
-
                                     <q-item
                                         clickable
                                         v-close-popup
