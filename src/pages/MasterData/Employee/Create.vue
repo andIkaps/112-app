@@ -120,6 +120,7 @@ const onSubmitEmployee = async () => {
     formData.append('religion_id', form.religion_id)
     formData.append('marital_status_id', form.marital_status_id)
     formData.append('name', form.name)
+    formData.append('education', form.education)
     formData.append('jasnita_number', form.jasnita_number)
     formData.append('gender', form.gender)
     formData.append('dob', form.dob)
