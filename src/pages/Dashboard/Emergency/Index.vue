@@ -359,13 +359,11 @@ onMounted(() => {
                             class="tw-flex tw-justify-center tw-items-center tw-h-full"
                         >
                             <apexchart
-                                v-if="series.every((value) => value !== 0)"
                                 type="pie"
                                 :options="chartOptions"
                                 :series="series"
                                 class="tw-w-full !tw-mb-10"
                             />
-                            <div v-else>No Data</div>
                         </div>
                     </template>
                 </base-card>
