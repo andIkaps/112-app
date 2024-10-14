@@ -138,10 +138,8 @@ const onCustomRange = (value, reason, detail) => {
             onUpdate(dateRange.value)
             break
         case 'add-day':
-            Day.value =
-                moment(value).format('YYYY-MM-DD') +
-                '  -  ' +
-                moment(value).format('YYYY-MM-DD')
+            Day.value = moment(value).format('MMMM YYYY')
+
             dateRange.value.from = moment(value).format('YYYY-MM-DD')
             dateRange.value.to = moment(value).format('YYYY-MM-DD')
             onUpdate(dateRange.value)

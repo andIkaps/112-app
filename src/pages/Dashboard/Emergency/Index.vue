@@ -46,29 +46,29 @@ const chartOptions = reactive({
         '#34495E' // Kasus Keamanan
     ],
     dataLabels: {
-        enabled: true,
-        style: {
-            fontSize: '22px', // Increase the font size
-            fontWeight: 'bold' // Optional: make the text bold
-        },
-        formatter: function (val: any, opts: any) {
-            // const label = opts.w.globals.labels[opts.seriesIndex]
-            const value = opts.w.globals.series[opts.seriesIndex]
-            return value
-        }
+        enabled: true
+        // style: {
+        //     fontSize: '22px', // Increase the font size
+        //     fontWeight: 'bold' // Optional: make the text bold
+        // },
+        // formatter: function (val: any, opts: any) {
+        //     // const label = opts.w.globals.labels[opts.seriesIndex]
+        //     const value = opts.w.globals.series[opts.seriesIndex]
+        //     return value
+        // }
     },
     labels: [
-        'Kasus Kecalakaan',
-        'Kasus Kebakaran',
-        'Kasus Ambulan',
-        'Kasus PLN',
-        'Kasus Mobil',
-        'Kasus Penanganan',
-        'Kasus Kriminal',
-        'Kasus Bencana',
-        'Kasus Gawat',
-        'Kasus KDRT',
-        'Kasus Keamanan'
+        'Kecalakaan',
+        'Kebakaran',
+        'Ambulan',
+        'PLN',
+        'Mobil',
+        'Penanganan Hewan',
+        'Kriminal',
+        'Bencana',
+        'Gawat',
+        'KDRT',
+        'Keamanan'
     ],
     legend: {
         show: true, // This hides the legend (right label),
@@ -107,15 +107,15 @@ const chartOptionsDistrict = reactive({
     //     '#34495E' // Kasus Keamanan
     // ],
     dataLabels: {
-        enabled: true,
-        style: {
-            fontSize: '22px', // Increase the font size
-            fontWeight: 'bold' // Optional: make the text bold
-        },
-        formatter: function (val: any, opts: any) {
-            const value = opts.w.globals.series[opts.seriesIndex]
-            return value
-        }
+        enabled: true
+        // style: {
+        //     fontSize: '22px', // Increase the font size
+        //     fontWeight: 'bold' // Optional: make the text bold
+        // },
+        // formatter: function (val: any, opts: any) {
+        //     const value = opts.w.globals.series[opts.seriesIndex]
+        //     return value
+        // }
     },
     labels: [],
     legend: {
@@ -139,20 +139,20 @@ const chartOptionsDistrict = reactive({
 const stats = computed(() => {
     return [
         {
-            label: 'Kasus Kecalakaan',
+            label: 'Kecalakaan',
             color: '#FF5733',
             value: series.value[0]
         },
-        { label: 'Kasus Kebakaran', color: '#C70039', value: series.value[1] },
-        { label: 'Kasus Ambulan', color: '#900C3F', value: series.value[2] },
-        { label: 'Kasus PLN', color: '#581845', value: series.value[3] },
-        { label: 'Kasus Mobil', color: '#1C2833', value: series.value[4] },
-        { label: 'Kasus Penanganan', color: '#2E86C1', value: series.value[5] },
-        { label: 'Kasus Kriminal', color: '#28B463', value: series.value[6] },
-        { label: 'Kasus Bencana', color: '#F1C40F', value: series.value[7] },
-        { label: 'Kasus Gawat', color: '#E67E22', value: series.value[8] },
-        { label: 'Kasus KDRT', color: '#8E44AD', value: series.value[9] },
-        { label: 'Kasus Keamanan', color: '#34495E', value: series.value[10] },
+        { label: 'Kebakaran', color: '#C70039', value: series.value[1] },
+        { label: 'Ambulan', color: '#900C3F', value: series.value[2] },
+        { label: 'PLN', color: '#581845', value: series.value[3] },
+        { label: 'Mobil', color: '#1C2833', value: series.value[4] },
+        { label: 'Penanganan Hewan', color: '#2E86C1', value: series.value[5] },
+        { label: 'Kriminal', color: '#28B463', value: series.value[6] },
+        { label: 'Bencana', color: '#F1C40F', value: series.value[7] },
+        { label: 'Gawat', color: '#E67E22', value: series.value[8] },
+        { label: 'KDRT', color: '#8E44AD', value: series.value[9] },
+        { label: 'Keamanan', color: '#34495E', value: series.value[10] },
         {
             label: 'Total Result',
             color: '#0d1b2a',
@@ -282,7 +282,7 @@ onMounted(() => {
 
 <template>
     <section id="content">
-        <base-title title="Jumlah Kasus Gawat Darurat">
+        <base-title title="Jumlah Gawat Darurat">
             <div class="tw-space-x-4">
                 <base-filter-date-range
                     ref="filterRef"
@@ -329,11 +329,18 @@ onMounted(() => {
                         >
                             <q-card-section>
                                 <h4
-                                    class="text-h4 tw-text-[#9BBB59] tw-font-semibold"
+                                    class="text-h4 tw-font-semibold"
+                                    :style="{
+                                        color: `${item.color}`
+                                    }"
                                 >
                                     {{ item.value }}
                                 </h4>
-                                <div class="tw-text-gray-600">
+                                <div
+                                    :style="{
+                                        color: `${item.color}`
+                                    }"
+                                >
                                     {{ item.label }}
                                 </div>
                             </q-card-section>

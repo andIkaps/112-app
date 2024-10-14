@@ -221,7 +221,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
                         {{ stats.by_month.disconnect_call }}
                     </h4>
-                    <div class="tw-text-gray-600">Disconnect</div>
+                    <div class="tw-text-[#9BBB59]">Disconnect</div>
                 </q-card-section>
             </q-card>
 
@@ -230,7 +230,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#4BACC6] tw-font-semibold">
                         {{ stats.by_month.prank_call }}
                     </h4>
-                    <div class="tw-text-gray-600">Prank</div>
+                    <div class="tw-text-[#4BACC6]">Prank</div>
                 </q-card-section>
             </q-card>
 
@@ -239,7 +239,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#F79646] tw-font-semibold">
                         {{ stats.by_month.education_call }}
                     </h4>
-                    <div class="tw-text-gray-600">Education</div>
+                    <div class="tw-text-[#F79646]">Education</div>
                 </q-card-section>
             </q-card>
 
@@ -248,7 +248,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#C0504D] tw-font-semibold">
                         {{ stats.by_month.emergency_call }}
                     </h4>
-                    <div class="tw-text-gray-600">Emergency</div>
+                    <div class="tw-text-[#C0504D]">Emergency</div>
                 </q-card-section>
             </q-card>
 
@@ -257,7 +257,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#8064A2] tw-font-semibold">
                         {{ stats.by_month.abandoned }}
                     </h4>
-                    <div class="tw-text-gray-600">Abandoned</div>
+                    <div class="tw-text-[#8064A2]">Abandoned</div>
                 </q-card-section>
             </q-card>
         </main>
@@ -268,7 +268,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#9BBB59] tw-font-semibold">
                         {{ stats.by_year.disconnect_call }}
                     </h4>
-                    <div class="tw-text-gray-600">Total Disconnect</div>
+                    <div class="tw-text-[#9BBB59]">Total Disconnect</div>
                 </q-card-section>
             </q-card>
 
@@ -277,7 +277,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#4BACC6] tw-font-semibold">
                         {{ stats.by_year.prank_call }}
                     </h4>
-                    <div class="tw-text-gray-600">Total Prank</div>
+                    <div class="tw-text-[#4BACC6]">Total Prank</div>
                 </q-card-section>
             </q-card>
 
@@ -286,7 +286,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#F79646] tw-font-semibold">
                         {{ stats.by_year.education_call }}
                     </h4>
-                    <div class="tw-text-gray-600">Total Education</div>
+                    <div class="tw-text-[#F79646]">Total Education</div>
                 </q-card-section>
             </q-card>
 
@@ -295,7 +295,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#C0504D] tw-font-semibold">
                         {{ stats.by_year.emergency_call }}
                     </h4>
-                    <div class="tw-text-gray-600">Total Emergency</div>
+                    <div class="tw-text-[#C0504D]">Total Emergency</div>
                 </q-card-section>
             </q-card>
 
@@ -304,7 +304,7 @@ onMounted(() => {
                     <h4 class="text-h4 tw-text-[#8064A2] tw-font-semibold">
                         {{ stats.by_year.abandoned }}
                     </h4>
-                    <div class="tw-text-gray-600">Total Abandoned</div>
+                    <div class="tw-text-[#8064A2]">Total Abandoned</div>
                 </q-card-section>
             </q-card>
         </main>
