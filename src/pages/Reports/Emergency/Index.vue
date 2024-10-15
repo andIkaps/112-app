@@ -4,6 +4,7 @@ import { Loading, QTableColumn } from 'quasar'
 import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import { computed, onMounted, ref } from 'vue'
+import { Notification } from 'src/boot/notify'
 
 // data
 const searchKeyword = ref<string>('')
@@ -84,7 +85,7 @@ const tableColumns: QTableColumn[] = [
         name: 'gawat_darurat',
         label: 'Gawat Darurat Lain',
         align: 'left',
-        field: (row: any) => row.gawat_darurat
+        field: (row: any) => row.gawat_darurat_lain
     },
     {
         name: 'action',
@@ -121,6 +122,8 @@ const breadcrumbs = ref<IBreadcrumbs[]>([
         icon: 'Brodcast'
     }
 ])
+const confirmDialog = ref(false)
+const emergencyID = ref<number>(0)
 
 // methods
 const fetchEmergencyReports = async () => {
@@ -132,6 +135,42 @@ const fetchEmergencyReports = async () => {
         }
     } catch (error) {
         console.log(error)
+    }
+}
+
+const openDeleteDialog = (id: number) => {
+    emergencyID.value = id
+
+    confirmDialog.value = true
+}
+
+const handleAction = (val: boolean) => {
+    confirmDialog.value = false
+    if (val) {
+        onDeleteCallReport()
+    } else {
+        emergencyID.value = 0
+    }
+}
+
+const onDeleteCallReport = async () => {
+    Loading.show({
+        message: 'Please wait...'
+    })
+
+    try {
+        const { data: response } = await api.delete(
+            `/emergency-reports/${emergencyID.value}`
+        )
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+            fetchEmergencyReports()
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
     }
 }
 
@@ -316,7 +355,10 @@ onMounted(() => {
                                         </q-item-section>
                                     </q-item>
                                     <q-separator />
-                                    <q-item clickable>
+                                    <q-item
+                                        clickable
+                                        @click="openDeleteDialog(props.row.id)"
+                                    >
                                         <q-item-section
                                             class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
                                         >
@@ -336,4 +378,10 @@ onMounted(() => {
             </base-table>
         </template>
     </base-card>
+
+    <base-confirmation-dialog
+        v-model="confirmDialog"
+        action="delete"
+        @onAction="handleAction"
+    />
 </template>
