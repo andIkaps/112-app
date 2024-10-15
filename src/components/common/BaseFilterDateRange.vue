@@ -46,6 +46,7 @@ const Days = ref([
 ])
 const Day = ref('Tahun Ini')
 const yearPicker = ref()
+const yearProxy = ref(false)
 
 const setSelectedDay = (val) => {
     dateRange.value = {
@@ -127,6 +128,7 @@ const setSelectedDay = (val) => {
 }
 
 const onCustomRange = (value, reason, detail) => {
+    console.log({ value, reason })
     switch (reason) {
         case 'add-range':
             Day.value =
@@ -138,6 +140,13 @@ const onCustomRange = (value, reason, detail) => {
             onUpdate(dateRange.value)
             break
         case 'add-day':
+            Day.value = moment(value).format('MMMM YYYY')
+
+            dateRange.value.from = moment(value).format('YYYY-MM-DD')
+            dateRange.value.to = moment(value).format('YYYY-MM-DD')
+            onUpdate(dateRange.value)
+            break
+        case 'month':
             Day.value = moment(value).format('MMMM YYYY')
 
             dateRange.value.from = moment(value).format('YYYY-MM-DD')
@@ -180,11 +189,16 @@ onMounted(() => {
 
                         <q-popup-proxy
                             ref="yearPicker"
+                            v-model="yearProxy"
                             v-if="day.value == 'custom'"
                         >
                             <q-date
-                                @click="$refs.yearPicker.hide"
+                                @click="
+                                    ;(yearProxy = false),
+                                        (poupDateRange = false)
+                                "
                                 @update:model-value="onCustomRange"
+                                emit-immediately
                                 v-model="dateRange"
                                 default-view="Months"
                             >
