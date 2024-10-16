@@ -82,6 +82,12 @@ const routes: RouteRecordRaw[] = [
                 name: 'emergency-report-page'
             },
             {
+                path: '/emergency-reports/:period/:year',
+                component: () => import('pages/Reports/Emergency/Show.vue'),
+                name: 'emergency-report-detail-page',
+                props: true
+            },
+            {
                 path: '/emergency-reports/create',
                 component: () => import('pages/Reports/Emergency/Create.vue'),
                 name: 'emergency-report-create-page'

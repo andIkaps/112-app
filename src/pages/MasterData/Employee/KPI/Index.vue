@@ -4,8 +4,11 @@ import { Loading, QTableColumn } from 'quasar'
 import { api } from 'src/boot/axios'
 import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import { onMounted, ref } from 'vue'
+import { Notification } from 'src/boot/notify'
 
 // data
+const confirmDialog = ref(false)
+const emergencyID = ref<number>(0)
 const breadcrumbs = ref<IBreadcrumbs[]>([
     {
         title: 'Dashboard',
@@ -109,6 +112,42 @@ const fetchEmployeeKPI = async () => {
         }
     } catch (error) {
         console.log(error)
+    }
+}
+
+const openDeleteDialog = (id: number) => {
+    emergencyID.value = id
+
+    confirmDialog.value = true
+}
+
+const handleAction = (val: boolean) => {
+    confirmDialog.value = false
+    if (val) {
+        onDeleteEmployeeKPI()
+    } else {
+        emergencyID.value = 0
+    }
+}
+
+const onDeleteEmployeeKPI = async () => {
+    Loading.show({
+        message: 'Please wait...'
+    })
+
+    try {
+        const { data: response } = await api.delete(
+            `/employees-kpi/${emergencyID.value}`
+        )
+
+        if (response.data) {
+            Notification(response.message, 'positive')
+            fetchEmployeeKPI()
+        }
+    } catch (error) {
+        console.log(error)
+    } finally {
+        Loading.hide()
     }
 }
 
@@ -330,7 +369,10 @@ onMounted(() => {
                                     </q-item-section>
                                 </q-item>
                                 <q-separator />
-                                <q-item clickable>
+                                <q-item
+                                    clickable
+                                    @click="openDeleteDialog(props.row.id)"
+                                >
                                     <q-item-section
                                         class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
                                     >
@@ -349,4 +391,10 @@ onMounted(() => {
             </base-table>
         </template>
     </base-card>
+
+    <base-confirmation-dialog
+        v-model="confirmDialog"
+        action="delete"
+        @onAction="handleAction"
+    />
 </template>

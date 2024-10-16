@@ -6,14 +6,21 @@ import { IBreadcrumbs } from 'src/components/common/BaseTitle.vue'
 import { computed, onMounted, ref } from 'vue'
 import { Notification } from 'src/boot/notify'
 
+// types
+interface IProps {
+    period: string
+    year: number
+}
+
 // data
+const props = defineProps<IProps>()
 const searchKeyword = ref<string>('')
 const tableColumns: QTableColumn[] = [
     {
-        name: 'period',
-        label: 'Period',
+        name: 'kecamatan',
+        label: 'Kecamatan',
         align: 'left',
-        field: (row: any) => row.period
+        field: (row: any) => row.district?.name
     },
     {
         name: 'kecelakaan',
@@ -80,6 +87,12 @@ const tableColumns: QTableColumn[] = [
         label: 'Gawat Darurat Lain',
         align: 'left',
         field: (row: any) => row.gawat_darurat_lain
+    },
+    {
+        name: 'action',
+        label: 'Action',
+        align: 'left',
+        field: ''
     }
 ]
 const tableRows = ref([])
@@ -116,7 +129,9 @@ const emergencyID = ref<number>(0)
 // methods
 const fetchEmergencyReports = async () => {
     try {
-        const { data: response } = await api.get('/emergency-reports')
+        const { data: response } = await api.get(
+            `/emergency-reports/${props.period}/${props.year}`
+        )
 
         if (response.data) {
             tableRows.value = response.data
@@ -240,7 +255,7 @@ onMounted(() => {
 <template>
     <base-title title="Emergency Reports" :crumbs="breadcrumbs" />
 
-    <base-card title="Lists Emergency Reports">
+    <base-card :title="`by Month ${$route.params.period}`">
         <template #action>
             <div class="tw-space-x-4">
                 <q-btn
@@ -258,21 +273,6 @@ onMounted(() => {
                         class="tw-mr-3"
                     />
                     Create New
-                </q-btn>
-
-                <q-btn
-                    outline
-                    no-caps
-                    unelevated
-                    color="negative"
-                    @click="onExportData"
-                >
-                    <base-icon
-                        icon-name="DocumentDownload"
-                        size="16"
-                        class="tw-mr-3"
-                    />
-                    Export Data
                 </q-btn>
             </div>
 
@@ -296,20 +296,71 @@ onMounted(() => {
                 :rows="filteredTableRows"
                 row-key="name"
             >
-                <template #period="props">
+                <template #kecamatan="props">
                     <q-td>
                         <router-link
                             :to="{
-                                name: 'emergency-report-detail-page',
+                                name: 'emergency-report-edit-page',
                                 params: {
-                                    period: props.row.period,
-                                    year: props.row.year
+                                    id: props.row.id
                                 }
                             }"
                             class="tw-underline tw-cursor-pointer"
                         >
-                            {{ props.row.period }} {{ props.row.year }}
+                            {{ props.row.district?.name }}
                         </router-link>
+                    </q-td>
+                </template>
+
+                <template #action="props">
+                    <q-td>
+                        <q-btn flat no-caps unelevated color="secondary">
+                            <base-icon icon-name="More" size="16" />
+
+                            <q-menu
+                                anchor="bottom end"
+                                self="top end"
+                                class="tw-shadow-lg tw-shadow-gray-50"
+                            >
+                                <q-list style="min-width: 100px">
+                                    <q-item
+                                        clickable
+                                        :to="{
+                                            name: 'emergency-report-edit-page',
+                                            params: {
+                                                id: props.row.id
+                                            }
+                                        }"
+                                    >
+                                        <q-item-section
+                                            class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
+                                        >
+                                            <base-icon
+                                                icon-name="Edit"
+                                                class="text-warning"
+                                            />
+                                            <span>Edit</span>
+                                        </q-item-section>
+                                    </q-item>
+                                    <q-separator />
+                                    <q-item
+                                        clickable
+                                        @click="openDeleteDialog(props.row.id)"
+                                    >
+                                        <q-item-section
+                                            class="tw-flex-row tw-gap-3 tw-items-center tw-justify-start"
+                                        >
+                                            <base-icon
+                                                icon-name="Trash"
+                                                class="text-negative"
+                                            />
+
+                                            <span>Delete</span>
+                                        </q-item-section>
+                                    </q-item>
+                                </q-list>
+                            </q-menu>
+                        </q-btn>
                     </q-td>
                 </template>
             </base-table>
